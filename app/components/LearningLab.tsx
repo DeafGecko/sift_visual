@@ -90,7 +90,7 @@ export default function LearningLab() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-accent-green text-background font-bold text-lg shadow-lg flex items-center justify-center z-50"
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-emerald-500 text-white font-bold text-lg shadow-lg flex items-center justify-center z-50"
         aria-label="Open Learning Lab"
       >
         ?
