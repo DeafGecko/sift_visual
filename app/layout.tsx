@@ -7,8 +7,8 @@ const queryClient = new QueryClient();
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-background text-foreground">
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-background text-foreground" suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
           <div className="flex">
             <Sidebar />
