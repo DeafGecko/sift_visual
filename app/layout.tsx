@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Inter } from 'next/font/google';
 import Sidebar from './components/Sidebar';
+import LearningLab from './components/LearningLab';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
             </main>
           </div>
+          <LearningLab />
         </QueryClientProvider>
       </body>
     </html>
