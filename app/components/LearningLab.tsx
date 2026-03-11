@@ -103,7 +103,7 @@ export default function LearningLab() {
             <DialogTitle className="text-xl font-bold">
               🎓 Learning Lab
             </DialogTitle>
-            <p className="text-foreground/50 text-sm">Click any topic to learn more</p>
+            {/* <p className="text-foreground/50 text-sm">Click any topic to learn more</p> */}
           </DialogHeader>
 
           <div className="space-y-6 mt-4">

@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTopGainers, useTopLosers, useStockData } from '@/hooks/useStocks';
+import { useQueryClient } from '@tanstack/react-query';
+import { RefreshCw } from 'lucide-react';
 
 // Indices Component
 const IndexCard = ({ symbol, label }: { symbol: string; label: string }) => {
@@ -50,11 +52,21 @@ const StockRow = ({ ticker, isGainer }: { ticker: any; isGainer: boolean }) => {
 };
 
 const DashboardLayout: React.FC = () => {
+  const queryClient = useQueryClient();
   const { data: gainersData, isLoading: gainersLoading } = useTopGainers();
   const { data: losersData, isLoading: losersLoading } = useTopLosers();
+  const [lastUpdated, setLastUpdated] = React.useState(new Date());
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const gainers = gainersData?.tickers?.slice(0, 5) || [];
   const losers = losersData?.tickers?.slice(0, 5) || [];
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries();
+    setLastUpdated(new Date());
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
 
   return (
     <TooltipProvider>
@@ -64,8 +76,27 @@ const DashboardLayout: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="min-h-screen bg-background text-foreground p-8 font-sans"
       >
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-foreground/40 text-sm mb-8">Live market overview — updates every 60 seconds</p>
+        {/* Header with refresh button */}
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <button
+            onClick={handleRefresh}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
+          >
+            <motion.div
+              animate={{ rotate: isRefreshing ? 360 : 0 }}
+              transition={{ duration: 0.8, ease: 'linear' }}
+            >
+              <RefreshCw size={14} />
+            </motion.div>
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+
+        {/* Last updated time */}
+        <p className="text-foreground/40 text-sm mb-8">
+          Live market overview — auto updates every 60s · Last updated: {lastUpdated.toLocaleTimeString()}
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -119,15 +150,6 @@ const DashboardLayout: React.FC = () => {
           </Card>
 
         </div>
-
-        {/* Learning Lab Button */}
-        <button
-          className="fixed bottom-4 right-4 bg-card text-foreground w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-accent-green hover:text-background transition-colors"
-          aria-label="Open Research Guide"
-        >
-          ?
-        </button>
-
       </motion.main>
     </TooltipProvider>
   );
