@@ -9,25 +9,33 @@ import { RefreshCw } from 'lucide-react';
 
 // Indices Component
 const IndexCard = ({ symbol, label }: { symbol: string; label: string }) => {
-  const { data, isLoading } = useStockData(symbol);
+  const { data, isLoading, isError } = useStockData(symbol);
   const result = data?.results?.[0];
-  const change = result ? ((result.c - result.o) / result.o * 100).toFixed(2) : null;
-  const isPositive = change && parseFloat(change) > 0;
+  const changeNum = result ? ((result.c - result.o) / result.o * 100) : 0;
+  const change = changeNum.toFixed(2);
+  const isPositive = changeNum >= 0;
 
   return (
     <div className="flex justify-between items-center py-2 border-b border-white/5">
       <span className="text-foreground/70 text-sm">{label}</span>
       {isLoading ? (
-        <span className="text-foreground/40 text-sm">Loading...</span>
+        <span className="text-foreground/40 text-sm animate-pulse">Loading...</span>
+      ) : isError ? (
+        <span className="text-red-500 text-sm">Error</span>
+      ) : !result ? (
+        <span className="text-foreground/40 text-sm">No data</span>
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className={`text-sm font-medium ${isPositive ? 'text-accent-green' : 'text-accent-red'}`}>
-              ${result?.c?.toFixed(2)} ({isPositive ? '+' : ''}{change}%)
+            <span className={`text-sm font-medium cursor-pointer ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+              ${result?.c?.toFixed(2)}{' '}
+              <span className="text-xs">
+                ({isPositive ? '+' : ''}{change}%)
+              </span>
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Open: ${result?.o?.toFixed(2)} | High: ${result?.h?.toFixed(2)} | Low: ${result?.l?.toFixed(2)}</p>
+            <p>Open: ${result?.o?.toFixed(2)} | High: ${result?.h?.toFixed(2)} | Low: ${result?.l?.toFixed(2)} | Vol: {result?.v?.toLocaleString()}</p>
           </TooltipContent>
         </Tooltip>
       )}
@@ -43,7 +51,7 @@ const StockRow = ({ ticker, isGainer }: { ticker: any; isGainer: boolean }) => {
       <span className="text-foreground text-sm font-medium">{ticker?.ticker}</span>
       <div className="text-right">
         <span className="text-foreground/70 text-xs block">${ticker?.day?.c?.toFixed(2)}</span>
-        <span className={`text-xs font-medium ${isGainer ? 'text-accent-green' : 'text-accent-red'}`}>
+        <span className={`text-xs font-medium ${isGainer ? 'text-emerald-500' : 'text-red-500'}`}>
           {isGainer ? '+' : ''}{change}%
         </span>
       </div>
@@ -76,7 +84,7 @@ const DashboardLayout: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="min-h-screen bg-background text-foreground p-8 font-sans"
       >
-        {/* Header with refresh button */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <button
@@ -93,7 +101,7 @@ const DashboardLayout: React.FC = () => {
           </button>
         </div>
 
-        {/* Last updated time */}
+        {/* Last updated */}
         <p className="text-foreground/40 text-sm mb-8" suppressHydrationWarning>
           Live market overview — auto updates every 60s · Last updated: {lastUpdated.toLocaleTimeString()}
         </p>
@@ -120,7 +128,7 @@ const DashboardLayout: React.FC = () => {
             </CardHeader>
             <CardContent>
               {gainersLoading ? (
-                <p className="text-foreground/40 text-sm">Loading...</p>
+                <p className="text-foreground/40 text-sm animate-pulse">Loading...</p>
               ) : gainers.length > 0 ? (
                 gainers.map((ticker: any) => (
                   <StockRow key={ticker.ticker} ticker={ticker} isGainer={true} />
@@ -138,7 +146,7 @@ const DashboardLayout: React.FC = () => {
             </CardHeader>
             <CardContent>
               {losersLoading ? (
-                <p className="text-foreground/40 text-sm">Loading...</p>
+                <p className="text-foreground/40 text-sm animate-pulse">Loading...</p>
               ) : losers.length > 0 ? (
                 losers.map((ticker: any) => (
                   <StockRow key={ticker.ticker} ticker={ticker} isGainer={false} />
