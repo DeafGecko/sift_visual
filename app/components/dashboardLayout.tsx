@@ -94,7 +94,7 @@ const DashboardLayout: React.FC = () => {
         </div>
 
         {/* Last updated time */}
-        <p className="text-foreground/40 text-sm mb-8">
+        <p className="text-foreground/40 text-sm mb-8" suppressHydrationWarning>
           Live market overview — auto updates every 60s · Last updated: {lastUpdated.toLocaleTimeString()}
         </p>
 
