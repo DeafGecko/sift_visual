@@ -3,19 +3,58 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useQuery } from '@tanstack/react-query';
+import { useTopGainers, useTopLosers, useStockData } from '@/hooks/useStocks';
 
-const fetchMarketData = async () => {
-  return {
-    indices: [{ name: 'S&P 500', value: 4500, change: 1.2 }],
-    topGainers: [{ symbol: 'AAPL', price: 150, change: 2.5 }],
-  };
+// Indices Component
+const IndexCard = ({ symbol, label }: { symbol: string; label: string }) => {
+  const { data, isLoading } = useStockData(symbol);
+  const result = data?.results?.[0];
+  const change = result ? ((result.c - result.o) / result.o * 100).toFixed(2) : null;
+  const isPositive = change && parseFloat(change) > 0;
+
+  return (
+    <div className="flex justify-between items-center py-2 border-b border-white/5">
+      <span className="text-foreground/70 text-sm">{label}</span>
+      {isLoading ? (
+        <span className="text-foreground/40 text-sm">Loading...</span>
+      ) : (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className={`text-sm font-medium ${isPositive ? 'text-accent-green' : 'text-accent-red'}`}>
+              ${result?.c?.toFixed(2)} ({isPositive ? '+' : ''}{change}%)
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Open: ${result?.o?.toFixed(2)} | High: ${result?.h?.toFixed(2)} | Low: ${result?.l?.toFixed(2)}</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  );
+};
+
+// Gainers/Losers Component
+const StockRow = ({ ticker, isGainer }: { ticker: any; isGainer: boolean }) => {
+  const change = ticker?.todaysChangePerc?.toFixed(2);
+  return (
+    <div className="flex justify-between items-center py-2 border-b border-white/5">
+      <span className="text-foreground text-sm font-medium">{ticker?.ticker}</span>
+      <div className="text-right">
+        <span className="text-foreground/70 text-xs block">${ticker?.day?.c?.toFixed(2)}</span>
+        <span className={`text-xs font-medium ${isGainer ? 'text-accent-green' : 'text-accent-red'}`}>
+          {isGainer ? '+' : ''}{change}%
+        </span>
+      </div>
+    </div>
+  );
 };
 
 const DashboardLayout: React.FC = () => {
-  const { data, isLoading } = useQuery({ queryKey: ['marketData'], queryFn: fetchMarketData });
+  const { data: gainersData, isLoading: gainersLoading } = useTopGainers();
+  const { data: losersData, isLoading: losersLoading } = useTopLosers();
 
-  if (isLoading) return <div className="text-foreground">Loading...</div>;
+  const gainers = gainersData?.tickers?.slice(0, 5) || [];
+  const losers = losersData?.tickers?.slice(0, 5) || [];
 
   return (
     <TooltipProvider>
@@ -25,53 +64,70 @@ const DashboardLayout: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="min-h-screen bg-background text-foreground p-8 font-sans"
       >
-        <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+        <p className="text-foreground/40 text-sm mb-8">Live market overview — updates every 60 seconds</p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          {/* Major Indices */}
           <Card className="bg-card border-none shadow-sm">
             <CardHeader>
-              <CardTitle>Major Indices</CardTitle>
+              <CardTitle className="text-base">Major Indices</CardTitle>
             </CardHeader>
             <CardContent>
-              {data?.indices.map((index) => (
-                <div key={index.name} className="flex justify-between mb-2">
-                  <span>{index.name}</span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className={index.change > 0 ? 'text-accent-green' : 'text-accent-red'}>
-                        {index.value} ({index.change}%)
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Percentage change from previous close.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              ))}
+              <IndexCard symbol="SPY" label="S&P 500" />
+              <IndexCard symbol="QQQ" label="NASDAQ" />
+              <IndexCard symbol="DIA" label="DOW JONES" />
+              <IndexCard symbol="IWM" label="RUSSELL 2000" />
             </CardContent>
           </Card>
 
+          {/* Top Gainers */}
           <Card className="bg-card border-none shadow-sm">
             <CardHeader>
-              <CardTitle>Top Gainers</CardTitle>
+              <CardTitle className="text-base">🟢 Top Gainers</CardTitle>
             </CardHeader>
             <CardContent>
-              {data?.topGainers.map((stock) => (
-                <div key={stock.symbol} className="flex justify-between mb-2">
-                  <span>{stock.symbol}</span>
-                  <span className="text-accent-green">{stock.price} (+{stock.change}%)</span>
-                </div>
-              ))}
+              {gainersLoading ? (
+                <p className="text-foreground/40 text-sm">Loading...</p>
+              ) : gainers.length > 0 ? (
+                gainers.map((ticker: any) => (
+                  <StockRow key={ticker.ticker} ticker={ticker} isGainer={true} />
+                ))
+              ) : (
+                <p className="text-foreground/40 text-sm">No data available</p>
+              )}
             </CardContent>
           </Card>
+
+          {/* Top Losers */}
+          <Card className="bg-card border-none shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-base">🔴 Top Losers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {losersLoading ? (
+                <p className="text-foreground/40 text-sm">Loading...</p>
+              ) : losers.length > 0 ? (
+                losers.map((ticker: any) => (
+                  <StockRow key={ticker.ticker} ticker={ticker} isGainer={false} />
+                ))
+              ) : (
+                <p className="text-foreground/40 text-sm">No data available</p>
+              )}
+            </CardContent>
+          </Card>
+
         </div>
 
+        {/* Learning Lab Button */}
         <button
-          className="fixed bottom-4 right-4 bg-card p-2 rounded-full"
+          className="fixed bottom-4 right-4 bg-card text-foreground w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-accent-green hover:text-background transition-colors"
           aria-label="Open Research Guide"
-          onClick={() => {}}
         >
           ?
         </button>
+
       </motion.main>
     </TooltipProvider>
   );
