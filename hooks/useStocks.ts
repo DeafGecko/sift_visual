@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 
-const fetchStockData = async (symbol: string) => {
-  const response = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
-  if (!response.ok) throw new Error('Failed to fetch stock data');
-  return response.json();
-};
-
 export const useStockData = (symbol: string) => {
   return useQuery({
     queryKey: ['stock', symbol],
-    queryFn: () => fetchStockData(symbol),
+    queryFn: async () => {
+      const response = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    },
     staleTime: 60000,
     refetchInterval: 60000,
   });
@@ -23,56 +21,56 @@ const STOCKS = [
   'COIN', 'SNAP', 'SPOT', 'RBLX', 'PLTR',
 ];
 
-const fetchMultipleStocks = async () => {
-  const results = await Promise.all(
-    STOCKS.map(async (symbol) => {
-      try {
-        const res = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
-        const data = await res.json();
-        const result = data?.results?.[0];
-        if (!result) return null;
-        const changePerc = ((result.c - result.o) / result.o * 100);
-        return {
-          ticker: symbol,
-          todaysChangePerc: changePerc,
-          day: { c: result.c },
-        };
-      } catch {
-        return null;
-      }
-    })
-  );
-  return results.filter(Boolean);
+// ONE shared fetch for all stocks
+const useAllStocks = () => {
+  return useQuery({
+    queryKey: ['allStocks'],
+    queryFn: async () => {
+      const results = await Promise.all(
+        STOCKS.map(async (symbol) => {
+          try {
+            const res = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
+            const data = await res.json();
+            const result = data?.results?.[0];
+            if (!result) return null;
+            const changePerc = ((result.c - result.o) / result.o * 100);
+            return {
+              ticker: symbol,
+              todaysChangePerc: changePerc,
+              day: { c: result.c },
+            };
+          } catch {
+            return null;
+          }
+        })
+      );
+      return results.filter(Boolean);
+    },
+    staleTime: 60000,
+    refetchInterval: 60000,
+  });
 };
 
-// Always show top 5 best performers
+// Gainers — uses shared fetch, only positive changes
 export const useTopGainers = () => {
-  return useQuery({
-    queryKey: ['topGainers'],
-    queryFn: async () => {
-      const stocks = await fetchMultipleStocks();
-      const gainers = [...stocks]
+  const { data: stocks, isLoading } = useAllStocks();
+  const gainers = stocks
+    ? [...stocks]
+        .filter((s) => s!.todaysChangePerc > 0)
         .sort((a, b) => b!.todaysChangePerc - a!.todaysChangePerc)
-        .slice(0, 5);
-      return { tickers: gainers };
-    },
-    staleTime: 60000,
-    refetchInterval: 60000,
-  });
+        .slice(0, 5)
+    : [];
+  return { data: { tickers: gainers }, isLoading };
 };
 
-// Always show bottom 5 worst performers
+// Losers — uses shared fetch, only negative changes
 export const useTopLosers = () => {
-  return useQuery({
-    queryKey: ['topLosers'],
-    queryFn: async () => {
-      const stocks = await fetchMultipleStocks();
-      const losers = [...stocks]
+  const { data: stocks, isLoading } = useAllStocks();
+  const losers = stocks
+    ? [...stocks]
+        .filter((s) => s!.todaysChangePerc < 0)
         .sort((a, b) => a!.todaysChangePerc - b!.todaysChangePerc)
-        .slice(0, 5);
-      return { tickers: losers };
-    },
-    staleTime: 60000,
-    refetchInterval: 60000,
-  });
+        .slice(0, 5)
+    : [];
+  return { data: { tickers: losers }, isLoading };
 };
