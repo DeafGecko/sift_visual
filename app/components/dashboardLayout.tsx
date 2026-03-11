@@ -117,7 +117,7 @@ const DashboardLayout: React.FC = () => {
               <IndexCard symbol="SPY" label="S&P 500" />
               <IndexCard symbol="QQQ" label="NASDAQ" />
               <IndexCard symbol="DIA" label="DOW JONES" />
-              <IndexCard symbol="IWM" label="RUSSELL 2000" />
+              {/* <IndexCard symbol="IWM" label="RUSSELL 2000" /> */}
             </CardContent>
           </Card>
 
