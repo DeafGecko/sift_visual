@@ -21,7 +21,7 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-56 bg-card border-r border-white/10 flex flex-col p-4 gap-1">
-      <div className="text-xl font-bold text-foreground mb-6 px-2">SIFT</div>
+      <div className="text-xl font-bold text-foreground mb-6 px-2">SIFT VISUAL</div>
       {navItems.map(({ label, href, icon: Icon }) => (
         <Link
           key={href}
