@@ -114,7 +114,7 @@ const DashboardLayout: React.FC = () => {
               <CardTitle className="text-base">Major Indices</CardTitle>
             </CardHeader>
             <CardContent>
-              <IndexCard symbol="SPY" label="S&P 500" />
+              <IndexCard symbol="VOO" label="S&P 500" />
               <IndexCard symbol="QQQ" label="NASDAQ" />
               <IndexCard symbol="DIA" label="DOW JONES" />
               {/* <IndexCard symbol="IWM" label="RUSSELL 2000" /> */}

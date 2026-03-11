@@ -15,7 +15,6 @@ export const useStockData = (symbol: string) => {
   });
 };
 
-// Expanded stock list for better coverage of gainers AND losers
 const STOCKS = [
   'AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN',
   'META', 'GOOGL', 'AMD', 'NFLX', 'PYPL',
@@ -46,13 +45,13 @@ const fetchMultipleStocks = async () => {
   return results.filter(Boolean);
 };
 
+// Always show top 5 best performers
 export const useTopGainers = () => {
   return useQuery({
     queryKey: ['topGainers'],
     queryFn: async () => {
       const stocks = await fetchMultipleStocks();
-      const gainers = stocks
-        .filter((s) => s!.todaysChangePerc > 0)
+      const gainers = [...stocks]
         .sort((a, b) => b!.todaysChangePerc - a!.todaysChangePerc)
         .slice(0, 5);
       return { tickers: gainers };
@@ -62,13 +61,13 @@ export const useTopGainers = () => {
   });
 };
 
+// Always show bottom 5 worst performers
 export const useTopLosers = () => {
   return useQuery({
     queryKey: ['topLosers'],
     queryFn: async () => {
       const stocks = await fetchMultipleStocks();
-      const losers = stocks
-        .filter((s) => s!.todaysChangePerc < 0)
+      const losers = [...stocks]
         .sort((a, b) => a!.todaysChangePerc - b!.todaysChangePerc)
         .slice(0, 5);
       return { tickers: losers };
