@@ -46,3 +46,51 @@ export const useAllStocks = () => {
     staleTime: 300000,
   });
 };
+
+export const useTopGainers = () => {
+  return useQuery({
+    queryKey: ['topGainers'],
+    queryFn: async () => {
+      const results = [];
+      for (const symbol of SYMBOLS) {
+        try {
+          const res = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
+          const data = await res.json();
+          if (data?.results?.[0]) {
+            const r = data.results[0];
+            const changePerc = ((r.c - r.o) / r.o) * 100;
+            if (changePerc > 0) results.push({ ticker: symbol, changePerc, price: r.c });
+          }
+          await new Promise(resolve => setTimeout(resolve, 250));
+        } catch {}
+      }
+      return results.sort((a, b) => b.changePerc - a.changePerc).slice(0, 5);
+    },
+    staleTime: 60000,
+    refetchInterval: 60000,
+  });
+};
+
+export const useTopLosers = () => {
+  return useQuery({
+    queryKey: ['topLosers'],
+    queryFn: async () => {
+      const results = [];
+      for (const symbol of SYMBOLS) {
+        try {
+          const res = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
+          const data = await res.json();
+          if (data?.results?.[0]) {
+            const r = data.results[0];
+            const changePerc = ((r.c - r.o) / r.o) * 100;
+            if (changePerc < 0) results.push({ ticker: symbol, changePerc, price: r.c });
+          }
+          await new Promise(resolve => setTimeout(resolve, 250));
+        } catch {}
+      }
+      return results.sort((a, b) => a.changePerc - b.changePerc).slice(0, 5);
+    },
+    staleTime: 60000,
+    refetchInterval: 60000,
+  });
+};
