@@ -20,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </div>
           <LearningLab />
+        <SettingsApplier />
         </QueryClientProvider>
       </body>
     </html>

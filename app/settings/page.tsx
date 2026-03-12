@@ -1,10 +1,12 @@
 'use client';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Settings, Moon, Sun, Monitor, Bell, Globe, Shield,
-  RefreshCw, Eye, Zap, Clock, Database, ChevronRight, Check
+  Settings, Moon, Sun, Monitor, Bell, Zap,
+  Clock, Database, Check, RefreshCw, Trash2
 } from 'lucide-react';
+import { useSettingsStore } from '@/store/useSettingsStore';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Section = ({ title, description, children }: { title: string; description: string; children: React.ReactNode }) => (
   <motion.div
@@ -49,7 +51,7 @@ const RadioGroup = ({ options, value, onChange, icons }: {
   onChange: (v: string) => void;
   icons?: React.ReactNode[];
 }) => (
-  <div className="flex gap-2">
+  <div className="flex gap-2 flex-wrap">
     {options.map((opt, i) => (
       <button
         key={opt}
@@ -60,7 +62,7 @@ const RadioGroup = ({ options, value, onChange, icons }: {
             : 'bg-white/5 border-white/10 text-foreground/50 hover:text-foreground hover:bg-white/10'
         }`}
       >
-        {icons?.[i] && <span>{icons[i]}</span>}
+        {icons?.[i]}
         {opt}
         {value === opt && <Check size={10} />}
       </button>
@@ -68,51 +70,36 @@ const RadioGroup = ({ options, value, onChange, icons }: {
   </div>
 );
 
+const ACCENT_COLORS = [
+  { name: 'Emerald', color: 'bg-emerald-500' },
+  { name: 'Blue', color: 'bg-blue-500' },
+  { name: 'Purple', color: 'bg-purple-500' },
+  { name: 'Amber', color: 'bg-amber-500' },
+  { name: 'Rose', color: 'bg-rose-500' },
+];
+
 export default function SettingsPage() {
-  // Appearance
-  const [theme, setTheme] = useState('Dark');
-  const [accentColor, setAccentColor] = useState('Emerald');
-  const [fontSize, setFontSize] = useState('Medium');
-  const [compactMode, setCompactMode] = useState(false);
-  const [animations, setAnimations] = useState(true);
-
-  // Market Data
-  const [refreshInterval, setRefreshInterval] = useState('60s');
-  const [priceFormat, setPriceFormat] = useState('USD');
-  const [showPremarket, setShowPremarket] = useState(true);
-  const [showAfterHours, setShowAfterHours] = useState(true);
-  const [dataSource, setDataSource] = useState('Polygon.io');
-
-  // Notifications
-  const [marketOpen, setMarketOpen] = useState(true);
-  const [marketClose, setMarketClose] = useState(true);
-  const [priceAlerts, setPriceAlerts] = useState(false);
-  const [newsAlerts, setNewsAlerts] = useState(false);
-
-  // Display
-  const [showVolume, setShowVolume] = useState(true);
-  const [showChangePercent, setShowChangePercent] = useState(true);
-  const [showMarketCap, setShowMarketCap] = useState(true);
-  const [colorBlindMode, setColorBlindMode] = useState(false);
-
-  // Privacy
-  const [analytics, setAnalytics] = useState(true);
-  const [crashReports, setCrashReports] = useState(true);
-
+  const s = useSettingsStore();
   const [saved, setSaved] = useState(false);
+  const [cacheCleared, setCacheCleared] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const ACCENT_COLORS = [
-    { name: 'Emerald', color: 'bg-emerald-500' },
-    { name: 'Blue', color: 'bg-blue-500' },
-    { name: 'Purple', color: 'bg-purple-500' },
-    { name: 'Amber', color: 'bg-amber-500' },
-    { name: 'Rose', color: 'bg-rose-500' },
-  ];
+  const handleClearCache = () => {
+    queryClient.clear();
+    setCacheCleared(true);
+    setTimeout(() => setCacheCleared(false), 2000);
+  };
+
+  const handleReset = () => {
+    s.resetAll();
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   return (
     <motion.div
@@ -149,8 +136,8 @@ export default function SettingsPage() {
         <Row label="Theme" description="Choose your preferred color scheme">
           <RadioGroup
             options={['Dark', 'Light', 'System']}
-            value={theme}
-            onChange={setTheme}
+            value={s.theme}
+            onChange={s.setTheme}
             icons={[<Moon size={12} />, <Sun size={12} />, <Monitor size={12} />]}
           />
         </Row>
@@ -159,11 +146,13 @@ export default function SettingsPage() {
             {ACCENT_COLORS.map((c) => (
               <button
                 key={c.name}
-                onClick={() => setAccentColor(c.name)}
-                className={`w-7 h-7 rounded-full ${c.color} transition-all ${
-                  accentColor === c.name ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-background scale-110' : 'opacity-60 hover:opacity-100'
-                }`}
+                onClick={() => s.setAccentColor(c.name)}
                 title={c.name}
+                className={`w-7 h-7 rounded-full ${c.color} transition-all ${
+                  s.accentColor === c.name
+                    ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-background scale-110'
+                    : 'opacity-50 hover:opacity-100'
+                }`}
               />
             ))}
           </div>
@@ -171,96 +160,107 @@ export default function SettingsPage() {
         <Row label="Font Size" description="Adjust text size across the app">
           <RadioGroup
             options={['Small', 'Medium', 'Large']}
-            value={fontSize}
-            onChange={setFontSize}
+            value={s.fontSize}
+            onChange={s.setFontSize}
           />
         </Row>
-        <Row label="Compact Mode" description="Reduce spacing for more data on screen">
-          <Toggle enabled={compactMode} onChange={() => setCompactMode(!compactMode)} />
+        <Row label="Compact Mode" description="Reduce row spacing to show more data on screen">
+          <Toggle enabled={s.compactMode} onChange={() => s.setCompactMode(!s.compactMode)} />
         </Row>
-        <Row label="Animations" description="Enable smooth transitions and motion effects">
-          <Toggle enabled={animations} onChange={() => setAnimations(!animations)} />
+        <Row label="Animations" description="Enable smooth transitions and Framer Motion effects">
+          <Toggle enabled={s.animations} onChange={() => s.setAnimations(!s.animations)} />
+        </Row>
+        <Row label="Color Blind Mode" description="Uses blue/orange instead of green/red for gains and losses">
+          <Toggle enabled={s.colorBlindMode} onChange={() => s.setColorBlindMode(!s.colorBlindMode)} />
         </Row>
       </Section>
 
       {/* Market Data */}
       <Section title="Market Data" description="Control how market data is fetched and displayed">
-        <Row label="Auto-refresh Interval" description="How often to fetch new market data">
+        <Row label="Auto-refresh Interval" description="How often to automatically fetch new market data">
           <RadioGroup
             options={['30s', '60s', '5m', '15m']}
-            value={refreshInterval}
-            onChange={setRefreshInterval}
+            value={s.refreshInterval}
+            onChange={s.setRefreshInterval}
           />
         </Row>
-        <Row label="Currency Format" description="Display prices in your preferred currency">
+        <Row label="Price Format" description="Display prices in your preferred currency format">
           <RadioGroup
             options={['USD', 'EUR', 'GBP']}
-            value={priceFormat}
-            onChange={setPriceFormat}
+            value={s.priceFormat}
+            onChange={s.setPriceFormat}
           />
         </Row>
         <Row label="Show Pre-market Data" description="Display pre-market prices before 9:30 AM ET">
-          <Toggle enabled={showPremarket} onChange={() => setShowPremarket(!showPremarket)} />
+          <Toggle enabled={s.showPremarket} onChange={() => s.setShowPremarket(!s.showPremarket)} />
         </Row>
         <Row label="Show After-hours Data" description="Display after-hours prices after 4:00 PM ET">
-          <Toggle enabled={showAfterHours} onChange={() => setShowAfterHours(!showAfterHours)} />
+          <Toggle enabled={s.showAfterHours} onChange={() => s.setShowAfterHours(!s.showAfterHours)} />
         </Row>
-        <Row label="Data Source" description="Market data provider">
+        <Row label="Data Source" description="Market data provider powering SIFT">
           <div className="flex items-center gap-2 text-xs text-foreground/50 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
             <Database size={12} />
-            {dataSource}
+            Polygon.io
           </div>
         </Row>
       </Section>
 
       {/* Display Preferences */}
-      <Section title="Display Preferences" description="Choose what data columns are visible">
-        <Row label="Show Volume" description="Display trading volume in stock tables">
-          <Toggle enabled={showVolume} onChange={() => setShowVolume(!showVolume)} />
+      <Section title="Display Preferences" description="Choose what data is visible in tables and charts">
+        <Row label="Show Volume" description="Display trading volume column in stock tables">
+          <Toggle enabled={s.showVolume} onChange={() => s.setShowVolume(!s.showVolume)} />
         </Row>
-        <Row label="Show Change %" description="Display percentage change column">
-          <Toggle enabled={showChangePercent} onChange={() => setShowChangePercent(!showChangePercent)} />
+        <Row label="Show Change %" description="Display the percentage change column">
+          <Toggle enabled={s.showChangePercent} onChange={() => s.setShowChangePercent(!s.showChangePercent)} />
         </Row>
-        <Row label="Show Market Cap" description="Display market cap badge in screener">
-          <Toggle enabled={showMarketCap} onChange={() => setShowMarketCap(!showMarketCap)} />
-        </Row>
-        <Row label="Color Blind Mode" description="Use blue/orange instead of green/red for gains/losses">
-          <Toggle enabled={colorBlindMode} onChange={() => setColorBlindMode(!colorBlindMode)} />
+        <Row label="Show Market Cap Badge" description="Display Mega/Large/Mid cap badge in screener">
+          <Toggle enabled={s.showMarketCap} onChange={() => s.setShowMarketCap(!s.showMarketCap)} />
         </Row>
       </Section>
 
       {/* Notifications */}
       <Section title="Notifications" description="Manage alerts and notification preferences">
         <Row label="Market Open Alert" description="Notify when US markets open at 9:30 AM ET">
-          <Toggle enabled={marketOpen} onChange={() => setMarketOpen(!marketOpen)} />
+          <Toggle enabled={s.marketOpen} onChange={() => s.setMarketOpen(!s.marketOpen)} />
         </Row>
         <Row label="Market Close Alert" description="Notify when US markets close at 4:00 PM ET">
-          <Toggle enabled={marketClose} onChange={() => setMarketClose(!marketClose)} />
+          <Toggle enabled={s.marketClose} onChange={() => s.setMarketClose(!s.marketClose)} />
         </Row>
-        <Row label="Price Alerts" description="Notify when a stock hits your target price">
-          <Toggle enabled={priceAlerts} onChange={() => setPriceAlerts(!priceAlerts)} />
+        <Row label="Price Alerts" description="Notify when a watchlisted stock hits your target price">
+          <Toggle enabled={s.priceAlerts} onChange={() => s.setPriceAlerts(!s.priceAlerts)} />
         </Row>
-        <Row label="News Alerts" description="Notify on major market news and events">
-          <Toggle enabled={newsAlerts} onChange={() => setNewsAlerts(!newsAlerts)} />
+        <Row label="News Alerts" description="Notify on major market news and economic events">
+          <Toggle enabled={s.newsAlerts} onChange={() => s.setNewsAlerts(!s.newsAlerts)} />
         </Row>
       </Section>
 
       {/* Privacy */}
-      <Section title="Privacy & Data" description="Control what data is shared with us">
+      <Section title="Privacy & Data" description="Control what data is stored and shared">
         <Row label="Usage Analytics" description="Help improve SIFT by sharing anonymous usage data">
-          <Toggle enabled={analytics} onChange={() => setAnalytics(!analytics)} />
+          <Toggle enabled={s.analytics} onChange={() => s.setAnalytics(!s.analytics)} />
         </Row>
         <Row label="Crash Reports" description="Automatically send error reports to help fix bugs">
-          <Toggle enabled={crashReports} onChange={() => setCrashReports(!crashReports)} />
+          <Toggle enabled={s.crashReports} onChange={() => s.setCrashReports(!s.crashReports)} />
         </Row>
-        <Row label="Clear Cache" description="Reset all cached market data and reload fresh">
-          <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-foreground/60 hover:text-foreground border border-white/10 transition-colors">
-            Clear Cache
+        <Row label="Clear Market Data Cache" description="Force fresh data on next page load">
+          <button
+            onClick={handleClearCache}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${
+              cacheCleared
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                : 'bg-white/5 hover:bg-white/10 text-foreground/60 hover:text-foreground border-white/10'
+            }`}
+          >
+            {cacheCleared ? <><Check size={12} /> Cleared!</> : <><Trash2 size={12} /> Clear Cache</>}
           </button>
         </Row>
-        <Row label="Reset All Settings" description="Restore all settings to their defaults">
-          <button className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs text-red-500 border border-red-500/20 transition-colors">
-            Reset
+        <Row label="Reset All Settings" description="Restore every setting back to its default value">
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs text-red-500 border border-red-500/20 transition-colors"
+          >
+            <RefreshCw size={12} />
+            Reset to Defaults
           </button>
         </Row>
       </Section>
@@ -283,7 +283,7 @@ export default function SettingsPage() {
       </div>
 
       <p className="text-foreground/20 text-xs mt-4 text-center">
-        Settings are saved locally · Some features require account (coming soon)
+        Settings are saved to your browser automatically · No account required
       </p>
     </motion.div>
   );
