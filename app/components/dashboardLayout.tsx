@@ -66,8 +66,8 @@ const DashboardLayout: React.FC = () => {
   const [lastUpdated, setLastUpdated] = React.useState(new Date());
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
-  const gainers = gainersData?.tickers?.slice(0, 5) || [];
-  const losers = losersData?.tickers?.slice(0, 5) || [];
+  const gainers = gainersData?.slice(0, 5) || [];
+  const losers = losersData?.slice(0, 5) || [];
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
