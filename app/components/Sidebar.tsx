@@ -63,7 +63,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-2 mb-4 px-2">
         <Zap size={18} className="text-emerald-500" />
-        <span className="text-xl font-bold text-foreground">SIFT</span>
+        <span className="text-xl font-bold text-foreground">SIFT VISUAL</span>
       </div>
 
       {/* Market Status Badge */}
