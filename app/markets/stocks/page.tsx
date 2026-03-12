@@ -44,7 +44,7 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
+      className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => window.location.href = `/markets/stocks/${symbol}`}
     >
       <td className="py-3 px-4">
         <div className="flex items-center gap-3">
