@@ -48,7 +48,9 @@ export default function StockDetailPage() {
     if (!chartRef.current || historyData.length === 0) return;
 
     const initChart = async () => {
-      const { createChart } = await import('lightweight-charts');
+      const LightweightCharts = await import('lightweight-charts');
+      const { createChart, CandlestickSeries } = LightweightCharts;
+
       chartRef.current!.innerHTML = '';
 
       const chart = createChart(chartRef.current!, {
@@ -67,7 +69,7 @@ export default function StockDetailPage() {
         timeScale: { borderColor: '#ffffff10' },
       });
 
-      const candleSeries = chart.addCandlestickSeries({
+      const candleSeries = chart.addSeries(CandlestickSeries, {
         upColor: '#10b981',
         downColor: '#ef4444',
         borderUpColor: '#10b981',
@@ -80,9 +82,10 @@ export default function StockDetailPage() {
       chart.timeScale().fitContent();
       setChartReady(true);
 
-      // Responsive resize
       const resizeObserver = new ResizeObserver(() => {
-        chart.applyOptions({ width: chartRef.current!.clientWidth });
+        if (chartRef.current) {
+          chart.applyOptions({ width: chartRef.current.clientWidth });
+        }
       });
       resizeObserver.observe(chartRef.current!);
     };
@@ -170,7 +173,7 @@ export default function StockDetailPage() {
             <span className="text-xs text-foreground/30 animate-pulse">Loading chart...</span>
           )}
         </div>
-        <div ref={chartRef} className="w-full" />
+        <div ref={chartRef} className="w-full" style={{height: '400px'}} />
       </div>
 
       <p className="text-foreground/20 text-xs mt-4">
