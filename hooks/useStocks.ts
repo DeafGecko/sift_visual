@@ -1,43 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 
-const STOCKS = [
-  'AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN',
-  'META', 'GOOGL', 'AMD', 'NFLX', 'PYPL',
-  'BA', 'DIS', 'INTC', 'WMT', 'JPM',
-  'XOM', 'PFE', 'KO', 'NKE', 'UBER',
-  'COIN', 'SNAP', 'SPOT', 'RBLX', 'PLTR',
+const SYMBOLS = [
+  'AAPL','MSFT','NVDA','TSLA','AMZN','META','GOOGL','AMD','NFLX','PYPL',
+  'BA','DIS','UBER','NKE','COIN','JPM','PFE','WMT','KO','SNAP',
+  'SPOT','RBLX','PLTR','INTC','XOM'
 ];
 
-const fetchAllStocks = async () => {
-  const results = await Promise.all(
-    STOCKS.map(async (symbol) => {
-      try {
-        const res = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
-        const data = await res.json();
-        const result = data?.results?.[0];
-        if (!result) return null;
-        const changePerc = ((result.c - result.o) / result.o * 100);
-        return {
-          ticker: symbol,
-          todaysChangePerc: changePerc,
-          day: { c: result.c },
-        };
-      } catch {
-        return null;
-      }
-    })
-  );
-  return results.filter(Boolean);
+const fetchStock = async (symbol: string) => {
+  const res = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
+  if (!res.ok) throw new Error('Failed');
+  return res.json();
 };
 
 export const useStockData = (symbol: string) => {
   return useQuery({
     queryKey: ['stock', symbol],
-    queryFn: async () => {
-      const response = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
-      if (!response.ok) throw new Error('Failed to fetch');
-      return response.json();
-    },
+    queryFn: () => fetchStock(symbol),
     staleTime: 60000,
     refetchInterval: 60000,
   });
@@ -46,42 +24,25 @@ export const useStockData = (symbol: string) => {
 export const useAllStocks = () => {
   return useQuery({
     queryKey: ['allStocks'],
-    queryFn: fetchAllStocks,
-    staleTime: 60000,
-    refetchInterval: 60000,
-  });
-};
-
-export const useTopGainers = () => {
-  return useQuery({
-    queryKey: ['topGainers'],
     queryFn: async () => {
-      const stocks = await fetchAllStocks();
-      return {
-        tickers: [...stocks]
-          .filter((s) => s!.todaysChangePerc > 0)
-          .sort((a, b) => b!.todaysChangePerc - a!.todaysChangePerc)
-          .slice(0, 5),
-      };
+      const results = [];
+      for (const symbol of SYMBOLS) {
+        try {
+          const res = await fetch(`/api/market?endpoint=/v2/aggs/ticker/${symbol}/prev`);
+          const data = await res.json();
+          if (data?.results?.[0]) {
+            const r = data.results[0];
+            results.push({
+              ticker: symbol,
+              todaysChangePerc: ((r.c - r.o) / r.o) * 100,
+              day: { o: r.o, h: r.h, l: r.l, c: r.c, v: r.v },
+            });
+          }
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } catch {}
+      }
+      return results;
     },
-    staleTime: 60000,
-    refetchInterval: 60000,
-  });
-};
-
-export const useTopLosers = () => {
-  return useQuery({
-    queryKey: ['topLosers'],
-    queryFn: async () => {
-      const stocks = await fetchAllStocks();
-      return {
-        tickers: [...stocks]
-          .filter((s) => s!.todaysChangePerc < 0)
-          .sort((a, b) => a!.todaysChangePerc - b!.todaysChangePerc)
-          .slice(0, 5),
-      };
-    },
-    staleTime: 60000,
-    refetchInterval: 60000,
+    staleTime: 300000,
   });
 };
