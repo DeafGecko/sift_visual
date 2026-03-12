@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
-import { TrendingUp, TrendingDown, Search, RefreshCw } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw, Search } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import EduTooltip from '@/app/components/EduTooltip';
 
 const STOCKS = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
@@ -18,37 +20,39 @@ const STOCKS = [
   { symbol: 'PYPL', name: 'PayPal Holdings' },
   { symbol: 'BA', name: 'Boeing Co.' },
   { symbol: 'DIS', name: 'Walt Disney Co.' },
-  { symbol: 'INTC', name: 'Intel Corp.' },
-  { symbol: 'WMT', name: 'Walmart Inc.' },
-  { symbol: 'JPM', name: 'JPMorgan Chase' },
-  { symbol: 'XOM', name: 'Exxon Mobil Corp.' },
-  { symbol: 'PFE', name: 'Pfizer Inc.' },
-  { symbol: 'KO', name: 'Coca-Cola Co.' },
-  { symbol: 'NKE', name: 'Nike Inc.' },
   { symbol: 'UBER', name: 'Uber Technologies' },
+  { symbol: 'NKE', name: 'Nike Inc.' },
   { symbol: 'COIN', name: 'Coinbase Global' },
+  { symbol: 'JPM', name: 'JPMorgan Chase' },
+  { symbol: 'PFE', name: 'Pfizer Inc.' },
+  { symbol: 'WMT', name: 'Walmart Inc.' },
+  { symbol: 'KO', name: 'Coca-Cola Co.' },
   { symbol: 'SNAP', name: 'Snap Inc.' },
   { symbol: 'SPOT', name: 'Spotify Technology' },
   { symbol: 'RBLX', name: 'Roblox Corp.' },
   { symbol: 'PLTR', name: 'Palantir Technologies' },
+  { symbol: 'INTC', name: 'Intel Corp.' },
+  { symbol: 'XOM', name: 'Exxon Mobil' },
 ];
 
 const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index: number }) => {
   const { data, isLoading } = useStockData(symbol);
+  const router = useRouter();
   const result = data?.results?.[0];
   const changePerc = result ? ((result.c - result.o) / result.o * 100) : 0;
   const isPositive = changePerc >= 0;
 
   return (
     <motion.tr
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => window.location.href = `/markets/stocks/${symbol}`}
+      onClick={() => router.push(`/markets/stocks/${symbol}`)}
+      className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
     >
       <td className="py-3 px-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold text-foreground">
+          <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-xs font-bold text-foreground">
             {symbol.slice(0, 2)}
           </div>
           <div>
@@ -57,38 +61,30 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
           </div>
         </div>
       </td>
-      <td className="py-3 px-4 text-right">
-        {isLoading ? (
-          <span className="text-foreground/30 text-sm animate-pulse">Loading...</span>
-        ) : (
-          <span className="text-sm font-medium text-foreground">
-            ${result?.c?.toFixed(2) ?? 'N/A'}
-          </span>
+      <td className="py-3 px-4 text-right font-medium text-sm">
+        {isLoading ? <span className="text-foreground/30 animate-pulse">--</span> : (
+          result?.c ? `$${result.c.toFixed(2)}` : <span className="text-foreground/30">N/A</span>
         )}
       </td>
       <td className="py-3 px-4 text-right">
-        {isLoading ? (
-          <span className="text-foreground/30 text-sm animate-pulse">--</span>
-        ) : (
+        {isLoading ? <span className="text-foreground/30 animate-pulse">--</span> : (
           <span className={`text-sm font-medium flex items-center justify-end gap-1 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
             {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
             {isPositive ? '+' : ''}{changePerc.toFixed(2)}%
           </span>
         )}
       </td>
-      <td className="py-3 px-4 text-right">
-        <span className="text-sm text-foreground/50">${result?.o?.toFixed(2) ?? '--'}</span>
+      <td className="py-3 px-4 text-right text-sm text-foreground/60">
+        {result?.o ? `$${result.o.toFixed(2)}` : <span className="text-foreground/30">$--</span>}
       </td>
-      <td className="py-3 px-4 text-right">
-        <span className="text-sm text-emerald-500/70">${result?.h?.toFixed(2) ?? '--'}</span>
+      <td className="py-3 px-4 text-right text-sm text-emerald-500/80">
+        {result?.h ? `$${result.h.toFixed(2)}` : <span className="text-foreground/30">$--</span>}
       </td>
-      <td className="py-3 px-4 text-right">
-        <span className="text-sm text-red-500/70">${result?.l?.toFixed(2) ?? '--'}</span>
+      <td className="py-3 px-4 text-right text-sm text-red-500/80">
+        {result?.l ? `$${result.l.toFixed(2)}` : <span className="text-foreground/30">$--</span>}
       </td>
-      <td className="py-3 px-4 text-right">
-        <span className="text-sm text-foreground/50">
-          {result?.v ? (result.v / 1_000_000).toFixed(1) + 'M' : '--'}
-        </span>
+      <td className="py-3 px-4 text-right text-sm text-foreground/50">
+        {result?.v ? `${(result.v / 1_000_000).toFixed(1)}M` : <span className="text-foreground/30">--</span>}
       </td>
     </motion.tr>
   );
@@ -100,8 +96,7 @@ export default function StocksPage() {
   const queryClient = useQueryClient();
 
   const filtered = STOCKS.filter(
-    (s) =>
-      s.symbol.toLowerCase().includes(search.toLowerCase()) ||
+    (s) => s.symbol.toLowerCase().includes(search.toLowerCase()) ||
       s.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -126,24 +121,21 @@ export default function StocksPage() {
           onClick={handleRefresh}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
         >
-          <motion.div
-            animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 0.8, ease: 'linear' }}
-          >
+          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8, ease: 'linear' }}>
             <RefreshCw size={14} />
           </motion.div>
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 
-      <div className="relative mb-6 mt-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
+      <div className="relative mt-4 mb-6">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30" />
         <input
           type="text"
           placeholder="Search stocks by symbol or name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-md bg-card border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-emerald-500/50"
+          className="w-full max-w-md bg-card border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-emerald-500/50"
         />
       </div>
 
@@ -151,13 +143,27 @@ export default function StocksPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/10">
-              <th className="py-3 px-4 text-left text-xs font-semibold text-foreground/40 uppercase tracking-wider">Symbol</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Price</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Change</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Open</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">High</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Low</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Volume</th>
+              <th className="py-3 px-4 text-left text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Symbol">Symbol</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Price">Price</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Change">Change</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Open">Open</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="High">High</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Low">Low</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Volume">Volume</EduTooltip>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -166,14 +172,10 @@ export default function StocksPage() {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && (
-          <div className="text-center py-12 text-foreground/30">
-            No stocks found for "{search}"
-          </div>
-        )}
       </div>
+
       <p className="text-foreground/20 text-xs mt-4">
-        Showing previous day close data · Updates every 60 seconds
+        Previous day close data · Click any row to view chart · Hover column headers for definitions
       </p>
     </motion.div>
   );

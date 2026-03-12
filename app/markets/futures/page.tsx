@@ -4,6 +4,7 @@ import { useStockData } from '@/hooks/useStocks';
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import EduTooltip from '@/app/components/EduTooltip';
 
 const FUTURES = [
   { symbol: 'SPY', name: 'S&P 500 Futures', category: 'Equity' },
@@ -48,38 +49,24 @@ const FuturesRow = ({ symbol, name, category, index }: { symbol: string; name: s
         </div>
       </td>
       <td className="py-3 px-4 text-center">
-        <span className="text-xs px-2 py-1 rounded-full bg-white/5 text-foreground/50">
-          {category}
-        </span>
+        <span className="text-xs px-2 py-1 rounded-full bg-white/5 text-foreground/50">{category}</span>
       </td>
       <td className="py-3 px-4 text-right">
-        {isLoading ? (
-          <span className="text-foreground/30 text-sm animate-pulse">Loading...</span>
-        ) : (
-          <span className="text-sm font-medium text-foreground">
-            ${result?.c?.toFixed(2) ?? 'N/A'}
-          </span>
+        {isLoading ? <span className="text-foreground/30 text-sm animate-pulse">Loading...</span> : (
+          <span className="text-sm font-medium text-foreground">${result?.c?.toFixed(2) ?? 'N/A'}</span>
         )}
       </td>
       <td className="py-3 px-4 text-right">
-        {isLoading ? (
-          <span className="text-foreground/30 text-sm animate-pulse">--</span>
-        ) : (
+        {isLoading ? <span className="text-foreground/30 text-sm animate-pulse">--</span> : (
           <span className={`text-sm font-medium flex items-center justify-end gap-1 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
             {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
             {isPositive ? '+' : ''}{changePerc.toFixed(2)}%
           </span>
         )}
       </td>
-      <td className="py-3 px-4 text-right">
-        <span className="text-sm text-foreground/50">${result?.o?.toFixed(2) ?? '--'}</span>
-      </td>
-      <td className="py-3 px-4 text-right">
-        <span className="text-sm text-emerald-500/70">${result?.h?.toFixed(2) ?? '--'}</span>
-      </td>
-      <td className="py-3 px-4 text-right">
-        <span className="text-sm text-red-500/70">${result?.l?.toFixed(2) ?? '--'}</span>
-      </td>
+      <td className="py-3 px-4 text-right"><span className="text-sm text-foreground/50">${result?.o?.toFixed(2) ?? '--'}</span></td>
+      <td className="py-3 px-4 text-right"><span className="text-sm text-emerald-500/70">${result?.h?.toFixed(2) ?? '--'}</span></td>
+      <td className="py-3 px-4 text-right"><span className="text-sm text-red-500/70">${result?.l?.toFixed(2) ?? '--'}</span></td>
       <td className="py-3 px-4 text-right">
         <span className="text-sm text-foreground/50">
           {result?.v ? (result.v / 1_000_000).toFixed(1) + 'M' : '--'}
@@ -94,9 +81,7 @@ export default function FuturesPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
-  const filtered = FUTURES.filter(
-    (f) => activeCategory === 'All' || f.category === activeCategory
-  );
+  const filtered = FUTURES.filter((f) => activeCategory === 'All' || f.category === activeCategory);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -119,10 +104,7 @@ export default function FuturesPage() {
           onClick={handleRefresh}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
         >
-          <motion.div
-            animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 0.8, ease: 'linear' }}
-          >
+          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8, ease: 'linear' }}>
             <RefreshCw size={14} />
           </motion.div>
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
@@ -135,9 +117,7 @@ export default function FuturesPage() {
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              activeCategory === cat
-                ? 'bg-emerald-500 text-background'
-                : 'bg-card text-foreground/50 hover:text-foreground hover:bg-white/10'
+              activeCategory === cat ? 'bg-emerald-500 text-background' : 'bg-card text-foreground/50 hover:text-foreground hover:bg-white/10'
             }`}
           >
             {cat}
@@ -149,32 +129,42 @@ export default function FuturesPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/10">
-              <th className="py-3 px-4 text-left text-xs font-semibold text-foreground/40 uppercase tracking-wider">Contract</th>
-              <th className="py-3 px-4 text-center text-xs font-semibold text-foreground/40 uppercase tracking-wider">Type</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Price</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Change</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Open</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">High</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Low</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Volume</th>
+              <th className="py-3 px-4 text-left text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Contract">Contract</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-center text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Type">Type</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Price">Price</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Change">Change</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Open">Open</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="High">High</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Low">Low</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Volume">Volume</EduTooltip>
+              </th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((future, index) => (
-              <FuturesRow
-                key={future.symbol}
-                symbol={future.symbol}
-                name={future.name}
-                category={future.category}
-                index={index}
-              />
+              <FuturesRow key={future.symbol} symbol={future.symbol} name={future.name} category={future.category} index={index} />
             ))}
           </tbody>
         </table>
       </div>
 
       <p className="text-foreground/20 text-xs mt-4">
-        Using ETF proxies for futures data · Updates every 60 seconds
+        Using ETF proxies for futures data · Hover column headers for definitions · Updates every 60 seconds
       </p>
     </motion.div>
   );

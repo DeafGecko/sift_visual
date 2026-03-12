@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
+import EduTooltip from '@/app/components/EduTooltip';
 
 const PAIRS = [
   { from: 'EUR', to: 'USD', name: 'Euro / US Dollar', category: 'Major' },
@@ -37,9 +38,7 @@ const useForexRate = (from: string, to: string) => {
   });
 };
 
-const ForexRow = ({ from, to, name, category, index }: {
-  from: string; to: string; name: string; category: string; index: number;
-}) => {
+const ForexRow = ({ from, to, name, category, index }: { from: string; to: string; name: string; category: string; index: number }) => {
   const { data, isLoading } = useForexRate(from, to);
   const rate = data?.rate;
 
@@ -62,17 +61,11 @@ const ForexRow = ({ from, to, name, category, index }: {
         </div>
       </td>
       <td className="py-3 px-4 text-center">
-        <span className="text-xs px-2 py-1 rounded-full bg-white/5 text-foreground/50">
-          {category}
-        </span>
+        <span className="text-xs px-2 py-1 rounded-full bg-white/5 text-foreground/50">{category}</span>
       </td>
       <td className="py-3 px-4 text-right">
-        {isLoading ? (
-          <span className="text-foreground/30 text-sm animate-pulse">Loading...</span>
-        ) : (
-          <span className="text-sm font-medium text-foreground">
-            {rate ? rate.toFixed(4) : 'N/A'}
-          </span>
+        {isLoading ? <span className="text-foreground/30 text-sm animate-pulse">Loading...</span> : (
+          <span className="text-sm font-medium text-foreground">{rate ? rate.toFixed(4) : 'N/A'}</span>
         )}
       </td>
       <td className="py-3 px-4 text-right">
@@ -90,9 +83,7 @@ export default function ForexPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
-  const filtered = PAIRS.filter(
-    (p) => activeCategory === 'All' || p.category === activeCategory
-  );
+  const filtered = PAIRS.filter((p) => activeCategory === 'All' || p.category === activeCategory);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -115,10 +106,7 @@ export default function ForexPage() {
           onClick={handleRefresh}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
         >
-          <motion.div
-            animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 0.8, ease: 'linear' }}
-          >
+          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8, ease: 'linear' }}>
             <RefreshCw size={14} />
           </motion.div>
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
@@ -131,9 +119,7 @@ export default function ForexPage() {
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              activeCategory === cat
-                ? 'bg-emerald-500 text-background'
-                : 'bg-card text-foreground/50 hover:text-foreground hover:bg-white/10'
+              activeCategory === cat ? 'bg-emerald-500 text-background' : 'bg-card text-foreground/50 hover:text-foreground hover:bg-white/10'
             }`}
           >
             {cat}
@@ -145,30 +131,33 @@ export default function ForexPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/10">
-              <th className="py-3 px-4 text-left text-xs font-semibold text-foreground/40 uppercase tracking-wider">Pair</th>
-              <th className="py-3 px-4 text-center text-xs font-semibold text-foreground/40 uppercase tracking-wider">Type</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Rate</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Base</th>
-              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">Quote</th>
+              <th className="py-3 px-4 text-left text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Pair">Pair</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-center text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Type">Type</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Rate">Rate</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Base">Base</EduTooltip>
+              </th>
+              <th className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <EduTooltip term="Quote">Quote</EduTooltip>
+              </th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((pair, index) => (
-              <ForexRow
-                key={`${pair.from}${pair.to}`}
-                from={pair.from}
-                to={pair.to}
-                name={pair.name}
-                category={pair.category}
-                index={index}
-              />
+              <ForexRow key={`${pair.from}${pair.to}`} from={pair.from} to={pair.to} name={pair.name} category={pair.category} index={index} />
             ))}
           </tbody>
         </table>
       </div>
 
       <p className="text-foreground/20 text-xs mt-4">
-        Live exchange rates via open.er-api.com · Updates every 60 seconds
+        Live exchange rates · Hover column headers for definitions · Updates every 60 seconds
       </p>
     </motion.div>
   );
