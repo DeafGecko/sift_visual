@@ -3,12 +3,8 @@ import { NextResponse } from 'next/server';
 const API_KEY = process.env.POLYGON_API_KEY;
 const BASE_URL = 'https://api.polygon.io';
 
-// Simple delay function
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Cache to avoid hitting rate limits
 const cache: Record<string, { data: any; timestamp: number }> = {};
-const CACHE_DURATION = 60000; // 1 minute
+const CACHE_DURATION = 300000; // 5 minutes cache
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -25,15 +21,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    await delay(200); // Small delay to avoid rate limits
     const response = await fetch(`${BASE_URL}${endpoint}?apiKey=${API_KEY}`);
     const data = await response.json();
-
-    // Save to cache
     cache[endpoint] = { data, timestamp: Date.now() };
-
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch market data' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
   }
 }

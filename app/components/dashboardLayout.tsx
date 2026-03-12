@@ -116,9 +116,7 @@ const DashboardLayout: React.FC = () => {
             <CardContent>
               <IndexCard symbol="VOO" label="S&P 500" />
               <IndexCard symbol="QQQ" label="NASDAQ" />
-              <IndexCard symbol="DIA" label="DOW JONES" />git add .
-git commit -m "Add caching and delay to avoid rate limits"
-git push
+              <IndexCard symbol="DIA" label="DOW JONES" />
               {/* <IndexCard symbol="IWM" label="RUSSELL 2000" /> */}
             </CardContent>
           </Card>
