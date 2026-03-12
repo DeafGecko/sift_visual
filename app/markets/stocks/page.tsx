@@ -33,7 +33,6 @@ const STOCKS = [
   { symbol: 'PLTR', name: 'Palantir Technologies' },
 ];
 
-// Single stock row component
 const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index: number }) => {
   const { data, isLoading } = useStockData(symbol);
   const result = data?.results?.[0];
@@ -47,7 +46,6 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
       transition={{ delay: index * 0.03 }}
       className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
     >
-      {/* Symbol & Name */}
       <td className="py-3 px-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold text-foreground">
@@ -59,8 +57,6 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
           </div>
         </div>
       </td>
-
-      {/* Price */}
       <td className="py-3 px-4 text-right">
         {isLoading ? (
           <span className="text-foreground/30 text-sm animate-pulse">Loading...</span>
@@ -70,8 +66,6 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
           </span>
         )}
       </td>
-
-      {/* Change % */}
       <td className="py-3 px-4 text-right">
         {isLoading ? (
           <span className="text-foreground/30 text-sm animate-pulse">--</span>
@@ -82,29 +76,15 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
           </span>
         )}
       </td>
-
-      {/* Open */}
       <td className="py-3 px-4 text-right">
-        <span className="text-sm text-foreground/50">
-          ${result?.o?.toFixed(2) ?? '--'}
-        </span>
+        <span className="text-sm text-foreground/50">${result?.o?.toFixed(2) ?? '--'}</span>
       </td>
-
-      {/* High */}
       <td className="py-3 px-4 text-right">
-        <span className="text-sm text-emerald-500/70">
-          ${result?.h?.toFixed(2) ?? '--'}
-        </span>
+        <span className="text-sm text-emerald-500/70">${result?.h?.toFixed(2) ?? '--'}</span>
       </td>
-
-      {/* Low */}
       <td className="py-3 px-4 text-right">
-        <span className="text-sm text-red-500/70">
-          ${result?.l?.toFixed(2) ?? '--'}
-        </span>
+        <span className="text-sm text-red-500/70">${result?.l?.toFixed(2) ?? '--'}</span>
       </td>
-
-      {/* Volume */}
       <td className="py-3 px-4 text-right">
         <span className="text-sm text-foreground/50">
           {result?.v ? (result.v / 1_000_000).toFixed(1) + 'M' : '--'}
@@ -137,7 +117,6 @@ export default function StocksPage() {
       animate={{ opacity: 1 }}
       className="p-8 min-h-screen bg-background text-foreground"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div>
           <h1 className="text-3xl font-bold">Stocks</h1>
@@ -157,7 +136,6 @@ export default function StocksPage() {
         </button>
       </div>
 
-      {/* Search bar */}
       <div className="relative mb-6 mt-4">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
         <input
@@ -169,7 +147,6 @@ export default function StocksPage() {
         />
       </div>
 
-      {/* Table */}
       <div className="bg-card rounded-xl border border-white/5 overflow-hidden">
         <table className="w-full">
           <thead>
@@ -185,23 +162,16 @@ export default function StocksPage() {
           </thead>
           <tbody>
             {filtered.map((stock, index) => (
-              <StockRow
-                key={stock.symbol}
-                symbol={stock.symbol}
-                name={stock.name}
-                index={index}
-              />
+              <StockRow key={stock.symbol} symbol={stock.symbol} name={stock.name} index={index} />
             ))}
           </tbody>
         </table>
-
         {filtered.length === 0 && (
           <div className="text-center py-12 text-foreground/30">
             No stocks found for "{search}"
           </div>
         )}
       </div>
-
       <p className="text-foreground/20 text-xs mt-4">
         Showing previous day close data · Updates every 60 seconds
       </p>
