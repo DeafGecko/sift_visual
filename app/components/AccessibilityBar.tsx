@@ -33,6 +33,7 @@ export default function AccessibilityBar() {
     const styleId = 'sift-reduce-motion';
     const existing = document.getElementById(styleId);
     if (reducedMotion) {
+      document.documentElement.setAttribute('data-reduce-motion', 'true');
       if (!existing) {
         const style = document.createElement('style');
         style.id = styleId;
@@ -43,10 +44,31 @@ export default function AccessibilityBar() {
             transition-duration: 0.001ms !important;
             transition-delay: 0ms !important;
           }
+          /* Stop Framer Motion transforms */
+          [data-reduce-motion="true"] [style*="transform"],
+          [data-reduce-motion="true"] [style*="opacity"] {
+            transform: none !important;
+            opacity: 1 !important;
+          }
+          /* Hide heatmap tooltip on hover */
+          [data-reduce-motion="true"] .fixed.bottom-8 {
+            display: none !important;
+          }
+          /* Stop screener row slide-in */
+          [data-reduce-motion="true"] tr {
+            opacity: 1 !important;
+            transform: none !important;
+          }
+          /* Stop all motion divs */
+          [data-reduce-motion="true"] [data-framer-component-type] {
+            animation: none !important;
+            transition: none !important;
+          }
         `;
         document.head.appendChild(style);
       }
     } else {
+      document.documentElement.removeAttribute('data-reduce-motion');
       existing?.remove();
     }
   }, [reducedMotion]);

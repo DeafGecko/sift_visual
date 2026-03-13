@@ -215,9 +215,9 @@ export default function ScreenerPage() {
               return (
                 <motion.tr
                   key={symbol}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.02 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                  animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+                  transition={reduceMotion ? {} : { delay: index * 0.02 }}
                   onClick={() => router.push(`/markets/stocks/${symbol}`)}
                   className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
                 >
