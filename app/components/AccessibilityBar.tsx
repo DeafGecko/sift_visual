@@ -30,12 +30,24 @@ export default function AccessibilityBar() {
   }, [highContrast]);
 
   useEffect(() => {
+    const styleId = 'sift-reduce-motion';
+    const existing = document.getElementById(styleId);
     if (reducedMotion) {
-      document.documentElement.style.setProperty('--animation-duration', '0s');
-      document.documentElement.style.setProperty('--transition-duration', '0s');
+      if (!existing) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+          *, *::before, *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
+            transition-delay: 0ms !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
     } else {
-      document.documentElement.style.removeProperty('--animation-duration');
-      document.documentElement.style.removeProperty('--transition-duration');
+      existing?.remove();
     }
   }, [reducedMotion]);
 
