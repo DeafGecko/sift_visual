@@ -5,7 +5,6 @@ import Sidebar from './components/Sidebar';
 import LearningLab from './components/LearningLab';
 import SettingsApplier from './components/SettingsApplier';
 import AccessibilityProvider from './components/AccessibilityProvider';
-import AccessibilityBar from './components/AccessibilityBar';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -30,7 +29,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <LearningLab />
             <SettingsApplier />
-            <AccessibilityBar />
           </AccessibilityProvider>
         </QueryClientProvider>
       </body>
