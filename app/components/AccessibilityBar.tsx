@@ -35,10 +35,10 @@ export default function AccessibilityBar() {
         aria-label="Accessibility options"
         aria-expanded={isOpen}
         title="Accessibility options"
-        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card border border-white/5 text-foreground/50 hover:text-foreground hover:bg-white/10 transition-colors text-sm font-medium"
+        className="flex items-center justify-center w-9 h-9 rounded-xl bg-card border border-white/5 text-foreground/50 hover:text-foreground hover:bg-white/10 transition-colors"
       >
-        <Accessibility size={15} aria-hidden="true" />
-        <span className="text-xs">Accessibility</span>
+        <Accessibility size={18} aria-hidden="true" />
+        <span className="sr-only">Accessibility options</span>
       </button>
 
       {isOpen && (
