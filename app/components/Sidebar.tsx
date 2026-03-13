@@ -39,7 +39,7 @@ const ALL_STOCKS = [
   { symbol: 'XOM', name: 'Exxon Mobil' },
 ];
 
-const NOTIFICATIONS = [
+const INITIAL_NOTIFICATIONS = [
   { id: 1, title: 'Market Opens in 30 min', desc: 'US markets open at 9:30 AM ET', time: '9:00 AM', color: 'bg-emerald-500' },
   { id: 2, title: 'Learning Lab Updated', desc: '5 new financial terms added', time: 'Today', color: 'bg-blue-500' },
   { id: 3, title: 'SIFT Visual v1.0', desc: 'Welcome! Explore all 10 pages', time: 'Today', color: 'bg-purple-500' },
@@ -166,28 +166,62 @@ function SearchModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function NotificationsPanel({ onClose }: { onClose: () => void }) {
+function NotificationsPanel({ onClose, notifications, onDismiss, onDismissAll }: {
+  onClose: () => void;
+  notifications: typeof INITIAL_NOTIFICATIONS;
+  onDismiss: (id: number) => void;
+  onDismissAll: () => void;
+}) {
   return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
       <div className="absolute bottom-16 left-56 ml-2 w-72 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-          <span className="text-sm font-bold">Notifications</span>
-          <button onClick={onClose} className="text-foreground/30 hover:text-foreground"><X size={14} /></button>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold">Notifications</span>
+            {notifications.length > 0 && (
+              <span className="text-xs bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded-full">{notifications.length}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {notifications.length > 0 && (
+              <button onClick={onDismissAll} className="text-xs text-foreground/40 hover:text-foreground transition-colors">
+                Clear all
+              </button>
+            )}
+            <button onClick={onClose} className="text-foreground/30 hover:text-foreground"><X size={14} /></button>
+          </div>
         </div>
-        <div className="divide-y divide-white/5">
-          {NOTIFICATIONS.map(n => (
-            <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
-              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${n.color}`} />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium">{n.title}</div>
-                <div className="text-xs text-foreground/40 mt-0.5">{n.desc}</div>
-              </div>
-              <span className="text-xs text-foreground/30 flex-shrink-0">{n.time}</span>
+        {notifications.length === 0 ? (
+          <div className="px-4 py-8 text-center">
+            <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Bell size={16} className="text-foreground/20" />
             </div>
-          ))}
-        </div>
+            <p className="text-sm text-foreground/30">No notifications</p>
+            <p className="text-xs text-foreground/20 mt-1">You are all caught up!</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-white/5 max-h-64 overflow-y-auto">
+            {notifications.map(n => (
+              <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors group">
+                <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${n.color}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium">{n.title}</div>
+                  <div className="text-xs text-foreground/40 mt-0.5">{n.desc}</div>
+                  <div className="text-xs text-foreground/20 mt-1">{n.time}</div>
+                </div>
+                <button
+                  onClick={() => onDismiss(n.id)}
+                  aria-label={`Dismiss notification: ${n.title}`}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-white/10 text-foreground/30 hover:text-foreground flex-shrink-0"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="px-4 py-2 border-t border-white/5 text-center">
-          <span className="text-xs text-foreground/30">More notifications coming soon</span>
+          <span className="text-xs text-foreground/20">Hover a notification to dismiss it</span>
         </div>
       </div>
     </div>
@@ -199,6 +233,9 @@ export default function Sidebar() {
   const isOpen = useMarketStatus();
   const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const dismissNotification = (id: number) => setNotifications(prev => prev.filter(n => n.id !== id));
+  const dismissAll = () => setNotifications([]);
 
   return (
     <>
@@ -243,11 +280,11 @@ export default function Sidebar() {
             <Link href="/watchlist" aria-label="View watchlist" title="Watchlist" className="hover:text-amber-400 transition-colors p-1 rounded-lg hover:bg-white/5">
               <Star size={15} aria-hidden="true" />
             </Link>
-            <button onClick={() => setShowNotifications(!showNotifications)} aria-label={`View ${NOTIFICATIONS.length} notifications`} title="Notifications" className={`relative transition-colors p-1 rounded-lg hover:bg-white/5 ${showNotifications ? 'text-foreground' : 'hover:text-foreground'}`}>
+            <button onClick={() => setShowNotifications(!showNotifications)} aria-label={`View ${notifications.length} notifications`} title="Notifications" className={`relative transition-colors p-1 rounded-lg hover:bg-white/5 ${showNotifications ? 'text-foreground' : 'hover:text-foreground'}`}>
               <Bell size={15} aria-hidden="true" />
-              {NOTIFICATIONS.length > 0 && (
+              {notifications.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center text-white font-bold" style={{fontSize: '9px'}}>
-                  {NOTIFICATIONS.length}
+                  {notifications.length}
                 </span>
               )}
             </button>
@@ -256,7 +293,7 @@ export default function Sidebar() {
       </aside>
 
       {showSearch && <SearchModal onClose={() => setShowSearch(false)} />}
-      {showNotifications && <NotificationsPanel onClose={() => setShowNotifications(false)} />}
+      {showNotifications && <NotificationsPanel onClose={() => setShowNotifications(false)} notifications={notifications} onDismiss={dismissNotification} onDismissAll={dismissAll} />}
     </>
   );
 }
