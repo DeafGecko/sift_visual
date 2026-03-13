@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
-import { TrendingUp, TrendingDown, RefreshCw, Search, Star } from 'lucide-react';
+import { TrendingUp, TrendingDown, Search, Star } from 'lucide-react';
 import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -106,19 +106,12 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
 
 export default function StocksPage() {
   const [search, setSearch] = useState('');
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
   const filtered = STOCKS.filter(
     (s) => s.symbol.toLowerCase().includes(search.toLowerCase()) ||
       s.name.toLowerCase().includes(search.toLowerCase())
   );
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   return (
     <motion.div
@@ -131,15 +124,6 @@ export default function StocksPage() {
           <h1 className="text-3xl font-bold">Stocks</h1>
           <p className="text-foreground/40 text-sm mt-1">Real-time quotes for top stocks</p>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
-        >
-          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8, ease: 'linear' }}>
-            <RefreshCw size={14} />
-          </motion.div>
-          {isRefreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
         <AccessibilityBar />
       </div>
 

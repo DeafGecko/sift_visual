@@ -2,7 +2,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWatchlistStore } from '@/store/useWatchlistStore';
 import { useStockData } from '@/hooks/useStocks';
-import { TrendingUp, TrendingDown, Star, Trash2, RefreshCw, StarOff, ExternalLink } from 'lucide-react';
+import { TrendingUp, TrendingDown, Star, Trash2, StarOff, ExternalLink } from 'lucide-react';
 import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -127,15 +127,8 @@ const EmptyState = () => {
 
 export default function WatchlistPage() {
   const { watchlist, clearWatchlist } = useWatchlistStore();
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const queryClient = useQueryClient();
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   const handleClear = () => {
     if (showClearConfirm) {
@@ -180,15 +173,6 @@ export default function WatchlistPage() {
               {showClearConfirm ? 'Tap again to confirm' : 'Clear All'}
             </button>
           )}
-          <button
-            onClick={handleRefresh}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium border border-white/5 transition-colors"
-          >
-            <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8 }}>
-              <RefreshCw size={14} />
-            </motion.div>
-            {isRefreshing ? 'Refreshing...' : 'Refresh'}
-          </button>
           <AccessibilityBar />
         </div>
       </div>

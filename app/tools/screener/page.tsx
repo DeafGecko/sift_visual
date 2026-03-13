@@ -1,7 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, TrendingUp, TrendingDown, Search, SlidersHorizontal } from 'lucide-react';
+import { TrendingUp, TrendingDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useAllStocks } from '@/hooks/useStocks';
@@ -49,7 +49,6 @@ export default function ScreenerPage() {
   const [sortKey, setSortKey] = useState<SortKey>('symbol');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [showFilters, setShowFilters] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -96,12 +95,6 @@ export default function ScreenerPage() {
     else { setSortKey(key); setSortDir('desc'); }
   };
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
-
   const SortHeader = ({ label, k }: { label: string; k: SortKey }) => (
     <th
       className="py-3 px-4 text-right text-xs font-semibold text-foreground/40 uppercase tracking-wider cursor-pointer hover:text-foreground transition-colors select-none"
@@ -146,15 +139,6 @@ export default function ScreenerPage() {
         >
           <SlidersHorizontal size={14} />
           Filters
-        </button>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card border border-white/5 text-foreground/60 hover:bg-white/10 text-sm font-medium transition-colors flex-shrink-0"
-        >
-          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8 }}>
-            <RefreshCw size={14} />
-          </motion.div>
-          Refresh
         </button>
         <div className="flex-shrink-0">
           <AccessibilityBar />

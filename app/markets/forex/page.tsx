@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw } from 'lucide-react';
 import AccessibilityBar from '@/app/components/AccessibilityBar';
 import EduTooltip from '@/app/components/EduTooltip';
 
@@ -81,16 +80,9 @@ const ForexRow = ({ from, to, name, category, index }: { from: string; to: strin
 
 export default function ForexPage() {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
   const filtered = PAIRS.filter((p) => activeCategory === 'All' || p.category === activeCategory);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   return (
     <motion.div
@@ -103,15 +95,6 @@ export default function ForexPage() {
           <h1 className="text-3xl font-bold">Forex</h1>
           <p className="text-foreground/40 text-sm mt-1">Major, Cross and Exotic currency pairs</p>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
-        >
-          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8, ease: 'linear' }}>
-            <RefreshCw size={14} />
-          </motion.div>
-          {isRefreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
         <AccessibilityBar />
       </div>
 

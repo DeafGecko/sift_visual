@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTopGainers, useTopLosers, useStockData } from '@/hooks/useStocks';
 import { useQueryClient } from '@tanstack/react-query';
-import { RefreshCw } from 'lucide-react';
 import AccessibilityBar from './AccessibilityBar';
 
 // Indices Component
@@ -65,17 +64,9 @@ const DashboardLayout: React.FC = () => {
   const { data: gainersData, isLoading: gainersLoading } = useTopGainers();
   const { data: losersData, isLoading: losersLoading } = useTopLosers();
   const [lastUpdated, setLastUpdated] = React.useState(new Date());
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const gainers = gainersData?.slice(0, 5) || [];
   const losers = losersData?.slice(0, 5) || [];
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries();
-    setLastUpdated(new Date());
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   return (
     <TooltipProvider>
@@ -88,18 +79,6 @@ const DashboardLayout: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <button
-            onClick={handleRefresh}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
-          >
-            <motion.div
-              animate={{ rotate: isRefreshing ? 360 : 0 }}
-              transition={{ duration: 0.8, ease: 'linear' }}
-            >
-              <RefreshCw size={14} />
-            </motion.div>
-            {isRefreshing ? 'Refreshing...' : 'Refresh'}
-          </button>
           <AccessibilityBar />
         </div>
 

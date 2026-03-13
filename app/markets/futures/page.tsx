@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
-import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -79,16 +79,9 @@ const FuturesRow = ({ symbol, name, category, index }: { symbol: string; name: s
 
 export default function FuturesPage() {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
   const filtered = FUTURES.filter((f) => activeCategory === 'All' || f.category === activeCategory);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   return (
     <motion.div
@@ -101,15 +94,6 @@ export default function FuturesPage() {
           <h1 className="text-3xl font-bold">Futures</h1>
           <p className="text-foreground/40 text-sm mt-1">Equity, Commodities and Bond futures</p>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
-        >
-          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8, ease: 'linear' }}>
-            <RefreshCw size={14} />
-          </motion.div>
-          {isRefreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
         <AccessibilityBar />
       </div>
 

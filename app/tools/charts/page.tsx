@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, RefreshCw, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown } from 'lucide-react';
 import AccessibilityBar from '@/app/components/AccessibilityBar';
 
 const POPULAR = ['AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN', 'META', 'GOOGL', 'AMD'];

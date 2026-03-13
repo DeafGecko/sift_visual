@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
-import { RefreshCw } from 'lucide-react';
 import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -99,15 +98,8 @@ const HeatTile = ({ symbol, info, index, activeSector, onHover }: {
 
 export default function HeatMapPage() {
   const [activeSector, setActiveSector] = useState('All');
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [hoveredStock, setHoveredStock] = useState<any>(null);
   const queryClient = useQueryClient();
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   return (
     <motion.div
@@ -120,15 +112,6 @@ export default function HeatMapPage() {
           <h1 className="text-3xl font-bold">Heat Map</h1>
           <p className="text-foreground/40 text-sm mt-1">Visual market performance overview</p>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 hover:text-foreground text-sm font-medium transition-colors"
-        >
-          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.8 }}>
-            <RefreshCw size={14} />
-          </motion.div>
-          {isRefreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
         <AccessibilityBar />
       </div>
 
