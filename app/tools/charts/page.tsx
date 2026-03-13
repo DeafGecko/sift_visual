@@ -167,13 +167,6 @@ export default function ChartsPage() {
           <h1 className="text-3xl font-bold">Charts</h1>
           <p className="text-foreground/40 text-sm mt-1">Advanced price charts with indicators</p>
         </div>
-        <button
-          onClick={loadChart}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-white/10 text-foreground/70 text-sm font-medium transition-colors"
-        >
-          <RefreshCw size={14} />
-          Refresh
-        </button>
       </div>
 
       {/* Search + Popular */}
