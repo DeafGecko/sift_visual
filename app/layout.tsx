@@ -4,6 +4,8 @@ import { Inter } from 'next/font/google';
 import Sidebar from './components/Sidebar';
 import LearningLab from './components/LearningLab';
 import SettingsApplier from './components/SettingsApplier';
+import AccessibilityProvider from './components/AccessibilityProvider';
+import AccessibilityBar from './components/AccessibilityBar';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -14,14 +16,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} bg-background text-foreground`} suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
-          <div className="flex">
-            <Sidebar />
-            <main className="ml-56 flex-1 min-h-screen">
-              {children}
-            </main>
-          </div>
-          <LearningLab />
-          <SettingsApplier />
+          <AccessibilityProvider>
+            <div className="flex">
+              <Sidebar />
+              <main
+                id="main-content"
+                tabIndex={-1}
+                className="ml-56 flex-1 min-h-screen"
+                aria-label="Main content"
+              >
+                {children}
+              </main>
+            </div>
+            <LearningLab />
+            <SettingsApplier />
+            <AccessibilityBar />
+          </AccessibilityProvider>
         </QueryClientProvider>
       </body>
     </html>
