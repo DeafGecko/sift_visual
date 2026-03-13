@@ -15,6 +15,7 @@ interface SettingsState {
   showChangePercent: boolean;
   showMarketCap: boolean;
   colorBlindMode: boolean;
+  reducedMotion: boolean;
   marketOpen: boolean;
   marketClose: boolean;
   priceAlerts: boolean;
@@ -34,6 +35,7 @@ interface SettingsState {
   setShowChangePercent: (v: boolean) => void;
   setShowMarketCap: (v: boolean) => void;
   setColorBlindMode: (v: boolean) => void;
+  setReducedMotion: (v: boolean) => void;
   setMarketOpen: (v: boolean) => void;
   setMarketClose: (v: boolean) => void;
   setPriceAlerts: (v: boolean) => void;
@@ -57,6 +59,7 @@ const DEFAULTS = {
   showChangePercent: true,
   showMarketCap: true,
   colorBlindMode: false,
+  reducedMotion: false,
   marketOpen: true,
   marketClose: true,
   priceAlerts: false,
@@ -82,6 +85,7 @@ export const useSettingsStore = create<SettingsState>()(
       setShowChangePercent: (v) => set({ showChangePercent: v }),
       setShowMarketCap: (v) => set({ showMarketCap: v }),
       setColorBlindMode: (v) => set({ colorBlindMode: v }),
+      setReducedMotion: (v) => set({ reducedMotion: v }),
       setMarketOpen: (v) => set({ marketOpen: v }),
       setMarketClose: (v) => set({ marketClose: v }),
       setPriceAlerts: (v) => set({ priceAlerts: v }),

@@ -94,7 +94,8 @@ const HeatTile = ({ symbol, info, index, activeSector, onHover }: {
         </>
       )}
     </motion.div>
-  );
+    );
+  }
 };
 
 export default function HeatMapPage() {
@@ -123,8 +124,9 @@ export default function HeatMapPage() {
     return () => { clearInterval(interval); clearTimeout(timer); };
   }, []);
 
-  if (!pageReady) {
-    return (
+  return (
+    if (!pageReady) {
+      return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground gap-6">
           <div className="relative">
             <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -156,9 +158,9 @@ export default function HeatMapPage() {
           </div>
         </div>
       );
-  }
+    }
 
-  return (
+    return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

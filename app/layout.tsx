@@ -5,6 +5,8 @@ import Sidebar from './components/Sidebar';
 import LearningLab from './components/LearningLab';
 import SettingsApplier from './components/SettingsApplier';
 import AccessibilityProvider from './components/AccessibilityProvider';
+import { MotionConfig } from 'framer-motion';
+import { useReduceMotion } from './components/ReduceMotionProvider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
