@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Minus, Plus, Accessibility } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 
 export default function AccessibilityBar() {
   const [fontSize, setFontSize] = useState(100);
@@ -13,18 +13,29 @@ export default function AccessibilityBar() {
   }, [fontSize]);
 
   useEffect(() => {
+    const root = document.documentElement;
     if (highContrast) {
-      document.documentElement.classList.add('high-contrast');
+      root.classList.add('high-contrast');
+      root.style.setProperty('--background', '#000000');
+      root.style.setProperty('--foreground', '#ffffff');
+      root.style.setProperty('--card', '#111111');
+      root.style.setProperty('filter', 'contrast(1.4)');
     } else {
-      document.documentElement.classList.remove('high-contrast');
+      root.classList.remove('high-contrast');
+      root.style.removeProperty('--background');
+      root.style.removeProperty('--foreground');
+      root.style.removeProperty('--card');
+      root.style.removeProperty('filter');
     }
   }, [highContrast]);
 
   useEffect(() => {
     if (reducedMotion) {
       document.documentElement.style.setProperty('--animation-duration', '0s');
+      document.documentElement.style.setProperty('--transition-duration', '0s');
     } else {
       document.documentElement.style.removeProperty('--animation-duration');
+      document.documentElement.style.removeProperty('--transition-duration');
     }
   }, [reducedMotion]);
 
@@ -37,7 +48,12 @@ export default function AccessibilityBar() {
         title="Accessibility options"
         className="flex items-center justify-center w-9 h-9 rounded-xl bg-card border border-white/5 text-foreground/50 hover:text-foreground hover:bg-white/10 transition-colors"
       >
-        <Accessibility size={18} aria-hidden="true" />
+        {/* Official W3C Web Accessibility Icon SVG */}
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="13" r="11"/>
+          <path d="M73 32H56l-3 15h14l8 20a5 5 0 0 0 9-4L74 40z"/>
+          <path d="M53 49l-3-17H30a5 5 0 0 0 0 10h16l2 10-14 4a5 5 0 0 0-3 6l6 20a5 5 0 0 0 9-3l-4-15 14-4a5 5 0 0 0 4-5z"/>
+        </svg>
         <span className="sr-only">Accessibility options</span>
       </button>
 
@@ -51,6 +67,7 @@ export default function AccessibilityBar() {
             ♿ Accessibility Options
           </h3>
 
+          {/* Text Size */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium">Text Size</label>
@@ -84,7 +101,7 @@ export default function AccessibilityBar() {
                   key={size}
                   onClick={() => setFontSize(size)}
                   aria-label={`Set text size to ${size}%`}
-                  className={`text-xs px-2 py-1 rounded-lg transition-colors ${fontSize === size ? 'bg-emerald-500/20 text-emerald-400' : 'text-foreground/30 hover:text-foreground'}`}
+                  className={`px-2 py-1 rounded-lg transition-colors ${fontSize === size ? 'bg-emerald-500/20 text-emerald-400' : 'text-foreground/30 hover:text-foreground'}`}
                   style={{ fontSize: `${10 + i * 2}px` }}
                 >
                   A
@@ -93,6 +110,7 @@ export default function AccessibilityBar() {
             </div>
           </div>
 
+          {/* High Contrast */}
           <div className="flex items-center justify-between py-2 border-t border-white/5">
             <div>
               <div className="text-sm font-medium">High Contrast</div>
@@ -109,6 +127,7 @@ export default function AccessibilityBar() {
             </button>
           </div>
 
+          {/* Reduce Motion */}
           <div className="flex items-center justify-between py-2 border-t border-white/5">
             <div>
               <div className="text-sm font-medium">Reduce Motion</div>
@@ -125,6 +144,7 @@ export default function AccessibilityBar() {
             </button>
           </div>
 
+          {/* Keyboard Shortcuts */}
           <div className="border-t border-white/5 pt-3">
             <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-2">Keyboard Shortcuts</p>
             <div className="space-y-1.5">
