@@ -4,6 +4,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { useStockData } from '@/hooks/useStocks';
+import { useWatchlistStore } from '@/store/useWatchlistStore';
+import { Star } from 'lucide-react';
 
 export default function StockDetailPage() {
   const params = useParams();
@@ -16,6 +18,8 @@ export default function StockDetailPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const result = data?.results?.[0];
+  const { toggleWatchlist, isWatched } = useWatchlistStore();
+  const watched = isWatched(symbol);
   const changePerc = result ? ((result.c - result.o) / result.o * 100) : 0;
   const isPositive = changePerc >= 0;
 
@@ -119,6 +123,7 @@ export default function StockDetailPage() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-4xl font-bold">{symbol}</h1>
+            <button onClick={() => toggleWatchlist(symbol)} className={`ml-2 transition-colors ${watched ? 'text-amber-400' : 'text-foreground/20 hover:text-amber-400'}`}><Star size={22} fill={watched ? 'currentColor' : 'none'} /></button>
             {!isLoading && result && (
               <span className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg ${isPositive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
                 {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}

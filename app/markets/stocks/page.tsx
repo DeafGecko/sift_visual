@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
-import { TrendingUp, TrendingDown, RefreshCw, Search } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw, Search, Star } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import EduTooltip from '@/app/components/EduTooltip';
+import { useWatchlistStore } from '@/store/useWatchlistStore';
 
 const STOCKS = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
@@ -38,6 +39,8 @@ const STOCKS = [
 const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index: number }) => {
   const { data, isLoading } = useStockData(symbol);
   const router = useRouter();
+  const { toggleWatchlist, isWatched } = useWatchlistStore();
+  const watched = isWatched(symbol);
   const result = data?.results?.[0];
   const changePerc = result ? ((result.c - result.o) / result.o * 100) : 0;
   const isPositive = changePerc >= 0;
@@ -47,26 +50,36 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
-      onClick={() => router.push(`/markets/stocks/${symbol}`)}
-      className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
+      className="border-b border-white/5 hover:bg-white/5 transition-colors group"
     >
       <td className="py-3 px-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-xs font-bold text-foreground">
-            {symbol.slice(0, 2)}
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-foreground">{symbol}</div>
-            <div className="text-xs text-foreground/40">{name}</div>
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleWatchlist(symbol); }}
+            className={`transition-colors ${watched ? 'text-amber-400' : 'text-foreground/20 hover:text-amber-400'}`}
+          >
+            <Star size={15} fill={watched ? 'currentColor' : 'none'} />
+          </button>
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => router.push(`/markets/stocks/${symbol}`)}
+          >
+            <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-xs font-bold text-foreground">
+              {symbol.slice(0, 2)}
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-foreground">{symbol}</div>
+              <div className="text-xs text-foreground/40">{name}</div>
+            </div>
           </div>
         </div>
       </td>
-      <td className="py-3 px-4 text-right font-medium text-sm">
+      <td className="py-3 px-4 text-right font-medium text-sm cursor-pointer" onClick={() => router.push(`/markets/stocks/${symbol}`)}>
         {isLoading ? <span className="text-foreground/30 animate-pulse">--</span> : (
           result?.c ? `$${result.c.toFixed(2)}` : <span className="text-foreground/30">N/A</span>
         )}
       </td>
-      <td className="py-3 px-4 text-right">
+      <td className="py-3 px-4 text-right cursor-pointer" onClick={() => router.push(`/markets/stocks/${symbol}`)}>
         {isLoading ? <span className="text-foreground/30 animate-pulse">--</span> : (
           <span className={`text-sm font-medium flex items-center justify-end gap-1 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
             {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -74,16 +87,16 @@ const StockRow = ({ symbol, name, index }: { symbol: string; name: string; index
           </span>
         )}
       </td>
-      <td className="py-3 px-4 text-right text-sm text-foreground/60">
+      <td className="py-3 px-4 text-right text-sm text-foreground/60 cursor-pointer" onClick={() => router.push(`/markets/stocks/${symbol}`)}>
         {result?.o ? `$${result.o.toFixed(2)}` : <span className="text-foreground/30">$--</span>}
       </td>
-      <td className="py-3 px-4 text-right text-sm text-emerald-500/80">
+      <td className="py-3 px-4 text-right text-sm text-emerald-500/80 cursor-pointer" onClick={() => router.push(`/markets/stocks/${symbol}`)}>
         {result?.h ? `$${result.h.toFixed(2)}` : <span className="text-foreground/30">$--</span>}
       </td>
-      <td className="py-3 px-4 text-right text-sm text-red-500/80">
+      <td className="py-3 px-4 text-right text-sm text-red-500/80 cursor-pointer" onClick={() => router.push(`/markets/stocks/${symbol}`)}>
         {result?.l ? `$${result.l.toFixed(2)}` : <span className="text-foreground/30">$--</span>}
       </td>
-      <td className="py-3 px-4 text-right text-sm text-foreground/50">
+      <td className="py-3 px-4 text-right text-sm text-foreground/50 cursor-pointer" onClick={() => router.push(`/markets/stocks/${symbol}`)}>
         {result?.v ? `${(result.v / 1_000_000).toFixed(1)}M` : <span className="text-foreground/30">--</span>}
       </td>
     </motion.tr>
@@ -175,7 +188,7 @@ export default function StocksPage() {
       </div>
 
       <p className="text-foreground/20 text-xs mt-4">
-        Previous day close data · Click any row to view chart · Hover column headers for definitions
+        ⭐ Star any stock to add to watchlist · Click row to view chart · Hover headers for definitions
       </p>
     </motion.div>
   );
