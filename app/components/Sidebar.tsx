@@ -1,12 +1,12 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import {
   Zap, LayoutDashboard, TrendingUp, BarChart2, DollarSign,
   Map, Filter, LineChart, BookOpen, Settings, Info,
   Star, Bell, Globe, Search
 } from 'lucide-react';
-import { useMarketStatus } from '@/hooks/useMarketStatus';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -22,8 +22,30 @@ const NAV_ITEMS = [
   { label: 'About', href: '/about', icon: Info },
 ];
 
+function useMarketStatus() {
+  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const now = new Date();
+      const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      const day = et.getDay();
+      const hours = et.getHours();
+      const minutes = et.getMinutes();
+      const time = hours * 60 + minutes;
+      const isWeekday = day >= 1 && day <= 5;
+      const isMarketHours = time >= 570 && time < 960;
+      setIsOpen(isWeekday && isMarketHours);
+    };
+    check();
+    const interval = setInterval(check, 60000);
+    return () => clearInterval(interval);
+  }, []);
+  return isOpen;
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
+  const isOpen = useMarketStatus();
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-56 bg-card border-r border-white/5 flex flex-col z-30">
@@ -38,7 +60,14 @@ export default function Sidebar() {
       </div>
 
       {/* Market Status */}
-      <MarketStatusBadge />
+      <div className="mx-3 my-2">
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium ${
+          isOpen ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
+        }`}>
+          <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+          Market {isOpen ? 'Open' : 'Closed'}
+        </div>
+      </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
@@ -76,19 +105,5 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
-  );
-}
-
-function MarketStatusBadge() {
-  const isOpen = useMarketStatus();
-  return (
-    <div className="mx-3 my-2">
-      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium ${
-        isOpen ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
-      }`}>
-        <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-        Market {isOpen ? 'Open' : 'Closed'}
-      </div>
-    </div>
   );
 }
