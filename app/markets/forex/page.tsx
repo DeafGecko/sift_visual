@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RefreshCw } from 'lucide-react';
+import AccessibilityBar from '@/app/components/AccessibilityBar';
 import EduTooltip from '@/app/components/EduTooltip';
 
 const PAIRS = [
@@ -111,6 +112,7 @@ export default function ForexPage() {
           </motion.div>
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </button>
+        <AccessibilityBar />
       </div>
 
       <div className="flex gap-2 mt-4 mb-6">

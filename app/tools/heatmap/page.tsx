@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
 import { RefreshCw } from 'lucide-react';
+import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 
 const STOCKS: Record<string, { name: string; sector: string }> = {
@@ -128,6 +129,7 @@ export default function HeatMapPage() {
           </motion.div>
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </button>
+        <AccessibilityBar />
       </div>
 
       {/* Legend */}

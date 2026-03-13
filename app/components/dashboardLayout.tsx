@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useTopGainers, useTopLosers, useStockData } from '@/hooks/useStocks';
 import { useQueryClient } from '@tanstack/react-query';
 import { RefreshCw } from 'lucide-react';
+import AccessibilityBar from './AccessibilityBar';
 
 // Indices Component
 const IndexCard = ({ symbol, label }: { symbol: string; label: string }) => {
@@ -99,6 +100,7 @@ const DashboardLayout: React.FC = () => {
             </motion.div>
             {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </button>
+          <AccessibilityBar />
         </div>
 
         {/* Last updated */}

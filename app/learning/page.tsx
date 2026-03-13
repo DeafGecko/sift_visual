@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, TrendingUp, BarChart2, Globe, HelpCircle, ChevronRight, Search } from 'lucide-react';
 import { DEFINITIONS } from '@/app/components/EduTooltip';
+import AccessibilityBar from '@/app/components/AccessibilityBar';
 
 const CATEGORIES = [
   {
@@ -76,6 +77,7 @@ export default function LearningLabPage() {
     >
       {/* Header */}
       <div className="mb-8">
+        <div className="flex justify-end mb-2"><AccessibilityBar /></div>
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
             <BookOpen size={20} className="text-emerald-500" />

@@ -61,7 +61,7 @@ export default function Sidebar() {
           <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center" aria-hidden="true">
             <Zap size={16} className="text-background" fill="currentColor" />
           </div>
-          <span className="text-lg font-bold tracking-tight">SIFT</span>
+          <span className="text-lg font-bold tracking-tight">SIFT VISUAL</span>
         </Link>
       </div>
 

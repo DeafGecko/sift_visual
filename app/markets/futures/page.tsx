@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import EduTooltip from '@/app/components/EduTooltip';
@@ -109,6 +110,7 @@ export default function FuturesPage() {
           </motion.div>
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </button>
+        <AccessibilityBar />
       </div>
 
       <div className="flex gap-2 mt-4 mb-6">

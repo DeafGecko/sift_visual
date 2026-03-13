@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWatchlistStore } from '@/store/useWatchlistStore';
 import { useStockData } from '@/hooks/useStocks';
 import { TrendingUp, TrendingDown, Star, Trash2, RefreshCw, StarOff, ExternalLink } from 'lucide-react';
+import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -188,6 +189,7 @@ export default function WatchlistPage() {
             </motion.div>
             {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </button>
+          <AccessibilityBar />
         </div>
       </div>
 

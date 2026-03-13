@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStockData } from '@/hooks/useStocks';
 import { TrendingUp, TrendingDown, RefreshCw, Search, Star } from 'lucide-react';
+import AccessibilityBar from '@/app/components/AccessibilityBar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import EduTooltip from '@/app/components/EduTooltip';
@@ -139,6 +140,7 @@ export default function StocksPage() {
           </motion.div>
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </button>
+        <AccessibilityBar />
       </div>
 
       <div className="relative mt-4 mb-6">
