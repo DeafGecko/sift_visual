@@ -52,46 +52,55 @@ export default function AccessibilityProvider({ children }: { children: React.Re
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Use e.code instead of e.key — Alt on Mac changes the character
-      // Alt+S (KeyS) — skip to main content
-      if (e.altKey && e.code === 'KeyS') {
-        e.preventDefault();
-        const main = document.querySelector('main') as HTMLElement;
-        if (main) {
-          main.setAttribute('tabindex', '-1');
-          main.focus();
+      // Ctrl key shortcuts — work reliably on Mac
+      if (e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        // Ctrl+M — skip to main content
+        if (e.code === 'KeyM') {
+          e.preventDefault();
+          const main = document.querySelector('main') as HTMLElement;
+          if (main) { main.setAttribute('tabindex', '-1'); main.focus(); }
           announceToScreenReader('Skipped to main content');
         }
-      }
-      // Alt+N (KeyN) — skip to navigation
-      if (e.altKey && e.code === 'KeyN') {
-        e.preventDefault();
-        const nav = document.querySelector('nav');
-        const firstLink = nav?.querySelector('a') as HTMLElement;
-        if (firstLink) {
-          firstLink.focus();
+        // Ctrl+B — skip to navigation (sidebar)
+        if (e.code === 'KeyB') {
+          e.preventDefault();
+          const nav = document.querySelector('nav');
+          const firstLink = nav?.querySelector('a') as HTMLElement;
+          if (firstLink) firstLink.focus();
           announceToScreenReader('Skipped to navigation');
         }
+        // Ctrl+1 — go to Dashboard
+        if (e.code === 'Digit1') {
+          e.preventDefault();
+          window.location.href = '/';
+          announceToScreenReader('Navigating to Dashboard');
+        }
+        // Ctrl+2 — go to Stocks
+        if (e.code === 'Digit2') {
+          e.preventDefault();
+          window.location.href = '/markets/stocks';
+          announceToScreenReader('Navigating to Stocks');
+        }
+        // Ctrl+3 — go to Watchlist
+        if (e.code === 'Digit3') {
+          e.preventDefault();
+          window.location.href = '/watchlist';
+          announceToScreenReader('Navigating to Watchlist');
+        }
+        // Ctrl+4 — go to Learning Lab
+        if (e.code === 'Digit4') {
+          e.preventDefault();
+          window.location.href = '/learning';
+          announceToScreenReader('Navigating to Learning Lab');
+        }
+        // Ctrl+5 — go to Settings
+        if (e.code === 'Digit5') {
+          e.preventDefault();
+          window.location.href = '/settings';
+          announceToScreenReader('Navigating to Settings');
+        }
       }
-      // Alt+H (KeyH) — go to home/dashboard
-      if (e.altKey && e.code === 'KeyH') {
-        e.preventDefault();
-        window.location.href = '/';
-        announceToScreenReader('Navigating to dashboard');
-      }
-      // Alt+W (KeyW) — go to watchlist
-      if (e.altKey && e.code === 'KeyW') {
-        e.preventDefault();
-        window.location.href = '/watchlist';
-        announceToScreenReader('Navigating to watchlist');
-      }
-      // Alt+L (KeyL) — go to learning lab
-      if (e.altKey && e.code === 'KeyL') {
-        e.preventDefault();
-        window.location.href = '/learning';
-        announceToScreenReader('Navigating to learning lab');
-      }
-      // Escape — stop speaking
+      // Escape — stop speaking (always works)
       if (e.code === 'Escape') {
         stopSpeaking();
       }

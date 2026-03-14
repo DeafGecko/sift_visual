@@ -157,11 +157,13 @@ export default function AccessibilityBar() {
             <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Keyboard Shortcuts</p>
             <div className="space-y-1.5">
               {[
-                { key: 'Alt + S', desc: 'Skip to main content' },
-                { key: 'Alt + N', desc: 'Skip to navigation' },
-                { key: 'Alt + H', desc: 'Go to Dashboard' },
-                { key: 'Alt + W', desc: 'Go to Watchlist' },
-                { key: 'Alt + L', desc: 'Go to Learning Lab' },
+                { key: 'Ctrl + M', desc: 'Skip to main content' },
+                { key: 'Ctrl + B', desc: 'Skip to navigation' },
+                { key: 'Ctrl + 1', desc: 'Go to Dashboard' },
+                { key: 'Ctrl + 2', desc: 'Go to Stocks' },
+                { key: 'Ctrl + 3', desc: 'Go to Watchlist' },
+                { key: 'Ctrl + 4', desc: 'Go to Learning Lab' },
+                { key: 'Ctrl + 5', desc: 'Go to Settings' },
                 { key: 'Esc', desc: 'Stop reading aloud' },
                 { key: 'Tab', desc: 'Navigate elements' },
               ].map((s) => (
