@@ -159,6 +159,9 @@ export default function AccessibilityBar() {
               {[
                 { key: 'Alt + S', desc: 'Skip to main content' },
                 { key: 'Alt + N', desc: 'Skip to navigation' },
+                { key: 'Alt + H', desc: 'Go to Dashboard' },
+                { key: 'Alt + W', desc: 'Go to Watchlist' },
+                { key: 'Alt + L', desc: 'Go to Learning Lab' },
                 { key: 'Esc', desc: 'Stop reading aloud' },
                 { key: 'Tab', desc: 'Navigate elements' },
               ].map((s) => (

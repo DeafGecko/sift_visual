@@ -52,18 +52,49 @@ export default function AccessibilityProvider({ children }: { children: React.Re
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.altKey && e.key === 's') {
-        const main = document.querySelector('main');
-        main?.focus();
-        announceToScreenReader('Skipped to main content');
+      // Use e.code instead of e.key — Alt on Mac changes the character
+      // Alt+S (KeyS) — skip to main content
+      if (e.altKey && e.code === 'KeyS') {
+        e.preventDefault();
+        const main = document.querySelector('main') as HTMLElement;
+        if (main) {
+          main.setAttribute('tabindex', '-1');
+          main.focus();
+          announceToScreenReader('Skipped to main content');
+        }
       }
-      if (e.altKey && e.key === 'n') {
+      // Alt+N (KeyN) — skip to navigation
+      if (e.altKey && e.code === 'KeyN') {
+        e.preventDefault();
         const nav = document.querySelector('nav');
         const firstLink = nav?.querySelector('a') as HTMLElement;
-        firstLink?.focus();
-        announceToScreenReader('Skipped to navigation');
+        if (firstLink) {
+          firstLink.focus();
+          announceToScreenReader('Skipped to navigation');
+        }
       }
-      if (e.key === 'Escape') stopSpeaking();
+      // Alt+H (KeyH) — go to home/dashboard
+      if (e.altKey && e.code === 'KeyH') {
+        e.preventDefault();
+        window.location.href = '/';
+        announceToScreenReader('Navigating to dashboard');
+      }
+      // Alt+W (KeyW) — go to watchlist
+      if (e.altKey && e.code === 'KeyW') {
+        e.preventDefault();
+        window.location.href = '/watchlist';
+        announceToScreenReader('Navigating to watchlist');
+      }
+      // Alt+L (KeyL) — go to learning lab
+      if (e.altKey && e.code === 'KeyL') {
+        e.preventDefault();
+        window.location.href = '/learning';
+        announceToScreenReader('Navigating to learning lab');
+      }
+      // Escape — stop speaking
+      if (e.code === 'Escape') {
+        stopSpeaking();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
